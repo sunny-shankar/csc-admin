@@ -13,10 +13,19 @@ import {
   Pie,
   Cell,
 } from 'recharts';
+import {
+  FileText,
+  Clock,
+  CheckCircle2,
+  Users,
+  ClipboardList,
+} from 'lucide-react';
 import { reportsApi, usersApi, tasksApi } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { formatPercent } from '@/lib/format';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { StatCard } from '@/components/ui/StatCard';
+import { Card } from '@/components/ui/Card';
 
 const COLORS = ['#1A3C5E', '#2E86AB', '#27AE60', '#F39C12', '#E74C3C', '#6B7280'];
 
@@ -47,7 +56,7 @@ export default function DashboardPage() {
     tasksQuery.isLoading ||
     pendingReportsQuery.isLoading;
 
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading) return <LoadingSpinner label="Loading dashboard…" />;
 
   const reports = reportsQuery.data?.data ?? [];
   const totalReports = reportsQuery.data?.meta?.total ?? reports.length;
@@ -70,64 +79,63 @@ export default function DashboardPage() {
   });
   const statusData = Object.entries(statusMap).map(([name, value]) => ({ name, value }));
 
-  const cards = [
-    { label: 'Total reports', value: totalReports.toLocaleString() },
-    { label: 'Pending review', value: pendingReports.toLocaleString() },
-    { label: 'Resolved rate (sample)', value: formatPercent(resolvedRate) },
-    { label: 'Registered users', value: totalUsers.toLocaleString() },
-    { label: 'Active tasks', value: activeTasks.toLocaleString() },
-  ];
-
   return (
     <div className="space-y-8">
       <PageHeader
         title="Dashboard"
-        description="Overview of civic engagement metrics"
+        description="Real-time overview of civic reports, volunteers, and community engagement."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        {cards.map((card) => (
-          <div key={card.label} className="rounded-xl bg-white p-5 shadow-sm">
-            <p className="text-sm text-zinc-500">{card.label}</p>
-            <p className="mt-2 text-3xl font-semibold text-[#1A3C5E]">{card.value}</p>
-          </div>
-        ))}
+        <StatCard label="Total reports" value={totalReports.toLocaleString()} icon={FileText} tone="blue" />
+        <StatCard label="Pending review" value={pendingReports.toLocaleString()} icon={Clock} tone="amber" />
+        <StatCard label="Resolved rate" value={formatPercent(resolvedRate)} icon={CheckCircle2} tone="green" />
+        <StatCard label="Registered users" value={totalUsers.toLocaleString()} icon={Users} />
+        <StatCard label="Active tasks" value={activeTasks.toLocaleString()} icon={ClipboardList} tone="blue" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl bg-white p-5 shadow-sm">
-          <h2 className="mb-4 font-semibold text-[#1A3C5E]">Reports by category</h2>
-          <div className="h-64">
+        <Card padding="md">
+          <h2 className="mb-1 font-semibold text-[#1A3C5E]">Reports by category</h2>
+          <p className="mb-4 text-xs text-slate-500">Distribution across issue types</p>
+          <div className="h-72">
             {categoryData.length === 0 ? (
-              <p className="flex h-full items-center justify-center text-sm text-zinc-400">
+              <p className="flex h-full items-center justify-center text-sm text-slate-400">
                 No report data yet
               </p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={categoryData}>
-                  <CartesianGrid strokeDasharray="3 3" />
+                <BarChart data={categoryData} margin={{ bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis
                     dataKey="name"
-                    tick={{ fontSize: 11 }}
+                    tick={{ fontSize: 11, fill: '#64748b' }}
                     interval={0}
-                    angle={-20}
+                    angle={-18}
                     textAnchor="end"
-                    height={60}
+                    height={70}
                   />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#2E86AB" radius={[4, 4, 0, 0]} />
+                  <YAxis allowDecimals={false} tick={{ fill: '#64748b', fontSize: 11 }} />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: '0.75rem',
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 4px 16px rgba(26,60,94,0.08)',
+                    }}
+                  />
+                  <Bar dataKey="value" fill="#2E86AB" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
           </div>
-        </div>
+        </Card>
 
-        <div className="rounded-xl bg-white p-5 shadow-sm">
-          <h2 className="mb-4 font-semibold text-[#1A3C5E]">Reports by status</h2>
-          <div className="h-64">
+        <Card padding="md">
+          <h2 className="mb-1 font-semibold text-[#1A3C5E]">Reports by status</h2>
+          <p className="mb-4 text-xs text-slate-500">Current workflow breakdown</p>
+          <div className="h-72">
             {statusData.length === 0 ? (
-              <p className="flex h-full items-center justify-center text-sm text-zinc-400">
+              <p className="flex h-full items-center justify-center text-sm text-slate-400">
                 No report data yet
               </p>
             ) : (
@@ -139,19 +147,28 @@ export default function DashboardPage() {
                     nameKey="name"
                     cx="50%"
                     cy="50%"
-                    outerRadius={80}
-                    label
+                    innerRadius={52}
+                    outerRadius={88}
+                    paddingAngle={2}
+                    label={({ name, percent }) =>
+                      `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
+                    }
                   >
                     {statusData.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} stroke="transparent" />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: '0.75rem',
+                      border: '1px solid #e2e8f0',
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             )}
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Medal } from 'lucide-react';
 import { leaderboardApi } from '@/lib/api';
-import { PageHeader } from '@/components/ui/PageHeader';
+import { PageToolbar } from '@/components/ui/PageToolbar';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Card } from '@/components/ui/Card';
+import { FilterInput, FilterSelect } from '@/components/ui/Input';
 
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) return <Medal className="text-amber-500" size={18} />;
@@ -31,40 +33,27 @@ export default function LeaderboardPage() {
   const entries = leaderboard?.entries ?? [];
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Leaderboard"
-        description={
-          leaderboard?.month
-            ? `Monthly rankings for ${leaderboard.month}${leaderboard.ward ? ` · ${leaderboard.ward}` : ''}`
-            : 'Monthly civic engagement rankings'
-        }
-      />
-
-      <div className="flex flex-wrap gap-3 rounded-xl bg-white p-4 shadow-sm">
-        <input
-          placeholder="Filter by ward (optional)"
+    <div className="space-y-4">
+      <PageToolbar>
+        <FilterInput
+          placeholder="Ward"
           value={ward}
           onChange={(e) => setWard(e.target.value)}
-          className="min-w-[200px] flex-1 rounded-lg border px-3 py-2 text-sm"
+          className="min-w-[8rem] max-w-[10rem]"
         />
-        <select
-          value={limit}
-          onChange={(e) => setLimit(Number(e.target.value))}
-          className="rounded-lg border px-3 py-2 text-sm"
-        >
+        <FilterSelect value={limit} onChange={(e) => setLimit(Number(e.target.value))}>
           <option value={25}>Top 25</option>
           <option value={50}>Top 50</option>
           <option value={100}>Top 100</option>
-        </select>
-      </div>
+        </FilterSelect>
+      </PageToolbar>
 
       {isLoading || isFetching ? (
-        <LoadingSpinner />
+        <LoadingSpinner label="Loading leaderboard…" />
       ) : entries.length === 0 ? (
         <EmptyState message="No leaderboard entries for this period." />
       ) : (
-        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+        <Card padding="none" className="overflow-hidden">
           <table className="w-full text-left text-sm">
             <thead className="border-b bg-zinc-50 text-xs uppercase text-zinc-500">
               <tr>
@@ -106,7 +95,7 @@ export default function LeaderboardPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </div>
   );

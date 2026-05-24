@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { authApi, setAccessToken, getAccessToken } from '@/lib/api';
+import { signOutFirebase } from '@/lib/firebase/phoneAuth';
 import type { AuthUser } from '@/lib/types';
 
 const TOKEN_KEY = 'csc_admin_token';
@@ -53,7 +54,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     const refreshToken = sessionStorage.getItem(REFRESH_KEY);
-  const token = getAccessToken();
+    const token = getAccessToken();
     if (token && refreshToken) {
       try {
         await authApi.logout(refreshToken);
@@ -61,6 +62,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         /* ignore */
       }
     }
+    await signOutFirebase();
     setAccessToken(null);
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(REFRESH_KEY);

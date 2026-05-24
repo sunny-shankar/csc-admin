@@ -7,11 +7,12 @@ import { Ban, ShieldCheck } from 'lucide-react';
 import { usersApi } from '@/lib/api';
 import { formatDateTime } from '@/lib/format';
 import type { AdminUser } from '@/lib/types';
-import { PageHeader } from '@/components/ui/PageHeader';
+import { PageToolbar } from '@/components/ui/PageToolbar';
 import { Pagination } from '@/components/ui/Pagination';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
+import { FilterInput, FilterSelect } from '@/components/ui/Input';
 
 function BanModal({
   user,
@@ -97,44 +98,38 @@ export default function UsersPage() {
   const meta = data?.meta;
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Users"
-        description="Manage citizens, points, and account status"
-      />
-
-      <div className="flex flex-wrap gap-3 rounded-xl bg-white p-4 shadow-sm">
-        <input
-          placeholder="Search by name or phone"
+    <div className="space-y-4">
+      <PageToolbar>
+        <FilterInput
+          placeholder="Search name or phone"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="min-w-[200px] flex-1 rounded-lg border px-3 py-2 text-sm"
+          className="min-w-[10rem] max-w-[14rem]"
         />
-        <input
-          placeholder="Ward filter"
+        <FilterInput
+          placeholder="Ward"
           value={ward}
           onChange={(e) => {
             setWard(e.target.value);
             setPage(1);
           }}
-          className="rounded-lg border px-3 py-2 text-sm"
+          className="min-w-[7rem] max-w-[8rem]"
         />
-        <select
+        <FilterSelect
           value={banned}
           onChange={(e) => {
             setBanned(e.target.value);
             setPage(1);
           }}
-          className="rounded-lg border px-3 py-2 text-sm"
         >
           <option value="">All users</option>
           <option value="true">Banned only</option>
           <option value="false">Active only</option>
-        </select>
-      </div>
+        </FilterSelect>
+      </PageToolbar>
 
       {isLoading ? (
         <LoadingSpinner />

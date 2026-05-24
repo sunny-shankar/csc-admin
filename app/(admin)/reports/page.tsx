@@ -9,7 +9,9 @@ import { reportsApi } from '@/lib/api';
 import { REPORT_CATEGORIES, REPORT_STATUSES } from '@/lib/constants';
 import { formatDateTime } from '@/lib/format';
 import type { Report, ReportStatus } from '@/lib/types';
-import { PageHeader } from '@/components/ui/PageHeader';
+import { Button } from '@/components/ui/Button';
+import { FilterInput, FilterSelect, Select, Textarea } from '@/components/ui/Input';
+import { PageToolbar } from '@/components/ui/PageToolbar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Pagination } from '@/components/ui/Pagination';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -86,49 +88,32 @@ export default function ReportsListPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Reports"
-        description="Filter, review, and update civic issue reports"
-        action={
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => refetch()}
-              className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-zinc-50"
-            >
+    <div className="space-y-4">
+      <PageToolbar
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
               <RefreshCw size={16} className={isFetching ? 'animate-spin' : ''} />
               Refresh
-            </button>
-            <button
-              type="button"
-              onClick={handleExport}
-              className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-zinc-50"
-            >
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExport}>
               <Download size={16} />
-              Export CSV
-            </button>
+              Export
+            </Button>
             {selected.size > 0 && (
-              <button
-                type="button"
-                onClick={() => setBatchOpen(true)}
-                className="rounded-lg bg-[#2E86AB] px-3 py-2 text-sm font-medium text-white"
-              >
-                Batch update ({selected.size})
-              </button>
+              <Button variant="secondary" size="sm" onClick={() => setBatchOpen(true)}>
+                Batch ({selected.size})
+              </Button>
             )}
-          </div>
+          </>
         }
-      />
-
-      <div className="flex flex-wrap gap-3 rounded-xl bg-white p-4 shadow-sm">
-        <select
+      >
+        <FilterSelect
           value={status}
           onChange={(e) => {
             setStatus(e.target.value);
             setPage(1);
           }}
-          className="rounded-lg border px-3 py-2 text-sm"
         >
           <option value="">All statuses</option>
           {REPORT_STATUSES.map((s) => (
@@ -136,14 +121,13 @@ export default function ReportsListPage() {
               {s}
             </option>
           ))}
-        </select>
-        <select
+        </FilterSelect>
+        <FilterSelect
           value={category}
           onChange={(e) => {
             setCategory(e.target.value);
             setPage(1);
           }}
-          className="rounded-lg border px-3 py-2 text-sm"
         >
           <option value="">All categories</option>
           {REPORT_CATEGORIES.map((c) => (
@@ -151,24 +135,24 @@ export default function ReportsListPage() {
               {c}
             </option>
           ))}
-        </select>
-        <input
-          placeholder="Ward filter"
+        </FilterSelect>
+        <FilterInput
+          placeholder="Ward"
           value={ward}
           onChange={(e) => {
             setWard(e.target.value);
             setPage(1);
           }}
-          className="rounded-lg border px-3 py-2 text-sm"
+          className="min-w-[7rem] max-w-[8rem]"
         />
-      </div>
+      </PageToolbar>
 
       {isLoading ? (
-        <LoadingSpinner />
+        <LoadingSpinner label="Loading reports…" />
       ) : reports.length === 0 ? (
         <EmptyState message="No reports match your filters." />
       ) : (
-        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+        <div className="card overflow-hidden">
           <table className="w-full text-left text-sm">
             <thead className="border-b bg-zinc-50 text-xs uppercase text-zinc-500">
               <tr>
@@ -225,32 +209,29 @@ export default function ReportsListPage() {
       <Modal open={batchOpen} title="Batch status update" onClose={() => setBatchOpen(false)}>
         <div className="space-y-4">
           <p className="text-sm text-zinc-600">Updating {selected.size} report(s)</p>
-          <select
+          <Select
             value={batchStatus}
             onChange={(e) => setBatchStatus(e.target.value as ReportStatus)}
-            className="w-full rounded-lg border px-3 py-2 text-sm"
           >
             {REPORT_STATUSES.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
             ))}
-          </select>
-          <textarea
+          </Select>
+          <Textarea
             placeholder="Note (optional)"
             value={batchNote}
             onChange={(e) => setBatchNote(e.target.value)}
-            className="w-full rounded-lg border px-3 py-2 text-sm"
             rows={3}
           />
-          <button
-            type="button"
+          <Button
+            className="w-full"
             disabled={batchMutation.isPending}
             onClick={() => batchMutation.mutate()}
-            className="w-full rounded-lg bg-[#1A3C5E] py-2 text-sm font-medium text-white disabled:opacity-60"
           >
             {batchMutation.isPending ? 'Updating…' : 'Apply'}
-          </button>
+          </Button>
         </div>
       </Modal>
     </div>

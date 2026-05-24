@@ -1,33 +1,40 @@
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { cn } from '@/lib/cn';
+
 interface PaginationProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  className?: string;
 }
 
-export function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
+export function Pagination({ page, totalPages, onPageChange, className }: PaginationProps) {
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center gap-2 pt-4">
-      <button
-        type="button"
+    <div className={cn('flex items-center justify-center gap-3 pt-2', className)}>
+      <Button
+        variant="outline"
+        size="sm"
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
-        className="rounded-lg border px-3 py-1.5 text-sm disabled:opacity-40"
       >
+        <ChevronLeft size={16} />
         Previous
-      </button>
-      <span className="text-sm text-zinc-600">
-        Page {page} of {totalPages}
+      </Button>
+      <span className="min-w-[7rem] text-center text-sm text-slate-600">
+        Page <span className="font-semibold text-slate-800">{page}</span> of {totalPages}
       </span>
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="sm"
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="rounded-lg border px-3 py-1.5 text-sm disabled:opacity-40"
       >
         Next
-      </button>
+        <ChevronRight size={16} />
+      </Button>
     </div>
   );
 }
