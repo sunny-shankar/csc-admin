@@ -82,6 +82,7 @@ export interface Task {
   volunteerCount: number;
   slotsRemaining: number;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface TaskVolunteer {
@@ -108,12 +109,20 @@ export interface AdminUser {
   name: string;
   phone?: string | null;
   ward?: string | null;
+  sectorNo?: string | null;
+  profilePhoto?: string | null;
+  profilePhotoUrl?: string | null;
   totalPoints: number;
+  badgeIds?: string[];
+  streakCount?: number;
+  profileComplete?: boolean;
   reportCount?: number;
   isBanned: boolean;
   banReason?: string | null;
   role: UserRole;
+  lastActiveAt?: string | null;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface LeaderboardEntry {

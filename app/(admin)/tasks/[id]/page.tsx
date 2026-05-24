@@ -2,12 +2,13 @@
 
 import { use, useState } from 'react';
 import Link from 'next/link';
+import type { TaskVolunteer } from '@/lib/types';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { Archive } from 'lucide-react';
 import { tasksApi } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/format';
-import type { TaskVolunteer } from '@/lib/types';
+import { DetailGrid } from '@/components/ui/DetailGrid';
 import { BackLink } from '@/components/ui/BackLink';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -54,7 +55,15 @@ function VolunteerProofCard({
     <Card padding="sm">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="font-medium text-neutral-900">{volunteer.user?.name ?? 'Volunteer'}</p>
+          <p className="font-medium text-[var(--gray-900)]">
+            {volunteer.user?.id ? (
+              <Link href={`/users/${volunteer.user.id}`} className="hover:underline">
+                {volunteer.user.name}
+              </Link>
+            ) : (
+              (volunteer.user?.name ?? 'Volunteer')
+            )}
+          </p>
           <p className="text-xs text-neutral-500">
             {volunteer.user?.ward} · {formatDateTime(volunteer.nominatedAt)}
           </p>
@@ -199,25 +208,24 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
             <StatusBadge label={task.status} variant="taskStatus" value={task.status} />
             <StatusBadge label={task.difficulty} variant="difficulty" value={task.difficulty} />
           </div>
-          <p className="text-sm text-neutral-600">{task.description ?? 'No description'}</p>
-          <dl className="mt-4 space-y-2.5 border-t border-neutral-100 pt-4 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-neutral-500">Dates</dt>
-              <dd>
-                {formatDate(task.startDate)} – {formatDate(task.endDate)}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-neutral-500">Volunteers</dt>
-              <dd>
-                {task.volunteerCount}/{task.maxVolunteers}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-neutral-500">Reward</dt>
-              <dd>{task.rewardPoints} pts</dd>
-            </div>
-          </dl>
+          <p className="text-[13px] text-[var(--text-secondary)]">{task.description ?? 'No description'}</p>
+          <div className="mt-4 border-t border-[var(--border)] pt-4">
+            <DetailGrid
+              rows={[
+                {
+                  label: 'Task period',
+                  value: `${formatDate(task.startDate)} – ${formatDate(task.endDate)}`,
+                },
+                {
+                  label: 'Volunteers',
+                  value: `${task.volunteerCount}/${task.maxVolunteers}`,
+                },
+                { label: 'Reward', value: `${task.rewardPoints} pts` },
+                { label: 'Created', value: formatDateTime(task.createdAt) },
+                { label: 'Updated', value: formatDateTime(task.updatedAt) },
+              ]}
+            />
+          </div>
         </Card>
 
         <div className="space-y-4 lg:col-span-2">

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Medal } from 'lucide-react';
 import { leaderboardApi } from '@/lib/api';
+import { formatMonthYear } from '@/lib/format';
 import { PageToolbar } from '@/components/ui/PageToolbar';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -36,10 +37,22 @@ export default function LeaderboardPage() {
         : leaderboardApi.monthly(limit),
   });
 
-  const entries = data?.data?.entries ?? [];
+  const leaderboard = data?.data;
+  const entries = leaderboard?.entries ?? [];
 
   return (
     <div className="space-y-4">
+      {leaderboard?.month && (
+        <p className="text-[13px] text-[var(--text-secondary)]">
+          Period: <span className="font-medium text-[var(--gray-900)]">{formatMonthYear(leaderboard.month)}</span>
+          {leaderboard.ward ? (
+            <>
+              {' '}
+              · Ward <span className="font-medium text-[var(--gray-900)]">{leaderboard.ward}</span>
+            </>
+          ) : null}
+        </p>
+      )}
       <PageToolbar>
         <FilterInput
           placeholder="Ward"

@@ -15,6 +15,7 @@ function resolveTitle(pathname: string): string {
   if (pathname.startsWith('/reports/')) return 'Report';
   if (pathname.startsWith('/tasks/new')) return 'New task';
   if (pathname.startsWith('/tasks/')) return 'Task';
+  if (pathname.startsWith('/users/')) return 'User';
   return titles[pathname] ?? 'Admin';
 }
 

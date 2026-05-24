@@ -8,6 +8,7 @@ import { ExternalLink } from 'lucide-react';
 import { reportsApi } from '@/lib/api';
 import { REPORT_STATUSES } from '@/lib/constants';
 import { formatDateTime } from '@/lib/format';
+import { DetailGrid } from '@/components/ui/DetailGrid';
 import type { ReportStatus } from '@/lib/types';
 import { BackLink } from '@/components/ui/BackLink';
 import { Button } from '@/components/ui/Button';
@@ -81,32 +82,31 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
 
           <Card>
             <p className="section-head">Details</p>
-            <dl className="mt-4 space-y-2.5 text-sm">
-              <div className="flex justify-between gap-4">
-                <dt className="text-neutral-500">Submitter</dt>
-                <dd className="text-neutral-900">{report.submitter?.name ?? '—'}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-neutral-500">Phone</dt>
-                <dd>{report.submitter?.phone ?? '—'}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-neutral-500">Ward</dt>
-                <dd>{report.submitter?.ward ?? '—'}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-neutral-500">Address</dt>
-                <dd className="text-right">{report.address ?? '—'}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-neutral-500">Points</dt>
-                <dd>{report.pointsAwarded}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-neutral-500">Created</dt>
-                <dd>{formatDateTime(report.createdAt)}</dd>
-              </div>
-            </dl>
+            <div className="mt-4">
+              <DetailGrid
+                rows={[
+                  {
+                    label: 'Submitter',
+                    value: report.submitter?.id ? (
+                      <Link
+                        href={`/users/${report.submitter.id}`}
+                        className="text-[var(--gray-900)] hover:underline"
+                      >
+                        {report.submitter.name}
+                      </Link>
+                    ) : (
+                      report.submitter?.name
+                    ),
+                  },
+                  { label: 'Phone', value: report.submitter?.phone },
+                  { label: 'Ward', value: report.submitter?.ward },
+                  { label: 'Address', value: report.address },
+                  { label: 'Points awarded', value: report.pointsAwarded },
+                  { label: 'Created', value: formatDateTime(report.createdAt) },
+                  { label: 'Updated', value: formatDateTime(report.updatedAt) },
+                ]}
+              />
+            </div>
             {report.description && (
               <p className="mt-4 border-t border-neutral-100 pt-4 text-sm text-neutral-700">
                 {report.description}

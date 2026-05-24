@@ -7,14 +7,22 @@ import { Plus } from 'lucide-react';
 import { tasksApi } from '@/lib/api';
 import { TASK_DIFFICULTIES, TASK_STATUSES } from '@/lib/constants';
 import { formatDate } from '@/lib/format';
+import { DateCell } from '@/components/ui/DateCell';
 import { PageToolbar } from '@/components/ui/PageToolbar';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Pagination } from '@/components/ui/Pagination';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { FilterInput, FilterSelect } from '@/components/ui/Input';
+import {
+  DataTable,
+  DataTableBody,
+  DataTableHead,
+  Td,
+  Th,
+  Tr,
+} from '@/components/ui/DataTable';
 
 export default function TasksListPage() {
   const [page, setPage] = useState(1);
@@ -88,42 +96,61 @@ export default function TasksListPage() {
       ) : tasks.length === 0 ? (
         <EmptyState message="No tasks found. Create one to get started." />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {tasks.map((t) => (
-            <Link key={t.id} href={`/tasks/${t.id}`}>
-              <Card hover className="h-full">
-                <div className="mb-2 flex items-start justify-between gap-2">
-                  <h3 className="font-medium leading-snug text-[var(--gray-900)]">{t.title}</h3>
-                  <StatusBadge label={t.status} variant="taskStatus" value={t.status} />
-                </div>
-                <p className="line-clamp-2 text-[12px] text-[var(--text-secondary)]">
-                  {t.description ?? 'No description'}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  <StatusBadge label={t.difficulty} variant="difficulty" value={t.difficulty} />
-                  <span className="inline-flex rounded px-1.5 py-0.5 text-[11px] font-medium text-neutral-500">
-                    Ward {t.ward}
-                  </span>
-                  <span className="inline-flex rounded px-1.5 py-0.5 text-[11px] font-medium text-neutral-600">
-                    +{t.rewardPoints} pts
-                  </span>
-                </div>
-                <div className="mt-3 border-t border-neutral-100 pt-3 text-xs text-neutral-500">
-                  <p>
+        <DataTable>
+          <table className="w-full min-w-[960px]">
+            <DataTableHead>
+              <Th>Title</Th>
+              <Th>Status</Th>
+              <Th>Ward</Th>
+              <Th>Period</Th>
+              <Th>Volunteers</Th>
+              <Th>Created</Th>
+              <Th>Updated</Th>
+              <Th className="text-right" />
+            </DataTableHead>
+            <DataTableBody>
+              {tasks.map((t) => (
+                <Tr key={t.id}>
+                  <Td className="max-w-[200px] font-medium text-[var(--gray-900)]">
+                    <span className="line-clamp-2">{t.title}</span>
+                    <span className="mt-0.5 block text-[11px] font-normal text-[var(--text-secondary)]">
+                      {t.difficulty} · +{t.rewardPoints} pts
+                    </span>
+                  </Td>
+                  <Td>
+                    <StatusBadge label={t.status} variant="taskStatus" value={t.status} />
+                  </Td>
+                  <Td>{t.ward}</Td>
+                  <Td className="whitespace-nowrap text-[var(--text-secondary)]">
                     {formatDate(t.startDate)} – {formatDate(t.endDate)}
-                  </p>
-                  <p className="mt-0.5">
-                    {t.volunteerCount} / {t.maxVolunteers} volunteers
-                  </p>
-                </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {meta && (
-        <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={setPage} />
+                  </Td>
+                  <Td className="tabular-nums">
+                    {t.volunteerCount}/{t.maxVolunteers}
+                  </Td>
+                  <Td>
+                    <DateCell value={t.createdAt} />
+                  </Td>
+                  <Td>
+                    <DateCell value={t.updatedAt} />
+                  </Td>
+                  <Td className="text-right">
+                    <Link
+                      href={`/tasks/${t.id}`}
+                      className="text-[13px] text-[var(--gray-900)] hover:underline"
+                    >
+                      View
+                    </Link>
+                  </Td>
+                </Tr>
+              ))}
+            </DataTableBody>
+          </table>
+          {meta && (
+            <div className="border-t border-[var(--border)] px-3">
+              <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={setPage} />
+            </div>
+          )}
+        </DataTable>
       )}
     </div>
   );

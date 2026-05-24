@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { Download, RefreshCw } from 'lucide-react';
 import { reportsApi } from '@/lib/api';
 import { REPORT_CATEGORIES, REPORT_STATUSES } from '@/lib/constants';
-import { formatDateTime } from '@/lib/format';
+import { DateCell } from '@/components/ui/DateCell';
 import type { Report, ReportStatus } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { FilterInput, FilterSelect, Select, Textarea } from '@/components/ui/Input';
@@ -174,8 +174,10 @@ export default function ReportsListPage() {
               <Th>Code</Th>
               <Th>Status</Th>
               <Th>Category</Th>
+              <Th>Submitter</Th>
               <Th>Ward</Th>
-              <Th>Submitted</Th>
+              <Th>Created</Th>
+              <Th>Updated</Th>
               <Th className="text-right" />
             </DataTableHead>
             <DataTableBody>
@@ -194,8 +196,22 @@ export default function ReportsListPage() {
                     <StatusBadge label={r.status} variant="status" value={r.status} />
                   </Td>
                   <Td>{r.category}</Td>
+                  <Td>
+                    {r.submitter?.id ? (
+                      <Link href={`/users/${r.submitter.id}`} className="hover:underline">
+                        {r.submitter.name}
+                      </Link>
+                    ) : (
+                      (r.submitter?.name ?? '—')
+                    )}
+                  </Td>
                   <Td>{r.submitter?.ward ?? '—'}</Td>
-                  <Td className="text-neutral-500">{formatDateTime(r.createdAt)}</Td>
+                  <Td>
+                    <DateCell value={r.createdAt} />
+                  </Td>
+                  <Td>
+                    <DateCell value={r.updatedAt} />
+                  </Td>
                   <Td className="text-right">
                     <Link href={`/reports/${r.id}`} className="text-sm text-neutral-900 hover:underline">
                       View

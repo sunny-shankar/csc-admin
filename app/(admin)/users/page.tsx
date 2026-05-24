@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { Ban, ShieldCheck } from 'lucide-react';
 import { usersApi } from '@/lib/api';
 import { formatDateTime } from '@/lib/format';
+import { DateCell } from '@/components/ui/DateCell';
 import type { AdminUser } from '@/lib/types';
 import { PageToolbar } from '@/components/ui/PageToolbar';
 import { Pagination } from '@/components/ui/Pagination';
@@ -156,12 +158,17 @@ export default function UsersPage() {
               <Th>Role</Th>
               <Th>Status</Th>
               <Th>Joined</Th>
+              <Th>Last active</Th>
               <Th className="text-right" />
             </DataTableHead>
             <DataTableBody>
               {users.map((u) => (
                 <Tr key={u.id}>
-                  <Td className="font-medium text-neutral-900">{u.name}</Td>
+                  <Td className="font-medium text-[var(--gray-900)]">
+                    <Link href={`/users/${u.id}`} className="hover:underline">
+                      {u.name}
+                    </Link>
+                  </Td>
                   <Td>{u.phone ?? '—'}</Td>
                   <Td>{u.ward ?? '—'}</Td>
                   <Td>{u.totalPoints.toLocaleString()}</Td>
@@ -178,7 +185,12 @@ export default function UsersPage() {
                       </span>
                     )}
                   </Td>
-                  <Td className="text-neutral-500">{formatDateTime(u.createdAt)}</Td>
+                  <Td>
+                    <DateCell value={u.createdAt} />
+                  </Td>
+                  <Td className="whitespace-nowrap text-[var(--text-secondary)]">
+                    {u.lastActiveAt ? formatDateTime(u.lastActiveAt) : '—'}
+                  </Td>
                   <Td className="text-right">
                     {u.role !== 'admin' &&
                       (u.isBanned ? (
@@ -192,14 +204,22 @@ export default function UsersPage() {
                           Unban
                         </button>
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => setBanTarget(u)}
-                          className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
-                        >
-                          <Ban size={14} />
-                          Ban
-                        </button>
+                        <>
+                          <Link
+                            href={`/users/${u.id}`}
+                            className="mr-3 text-[13px] text-[var(--gray-900)] hover:underline"
+                          >
+                            View
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => setBanTarget(u)}
+                            className="inline-flex items-center gap-1 text-[13px] text-red-600 hover:text-red-700"
+                          >
+                            <Ban size={14} />
+                            Ban
+                          </button>
+                        </>
                       ))}
                   </Td>
                 </Tr>
