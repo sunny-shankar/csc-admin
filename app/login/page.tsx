@@ -136,6 +136,7 @@ export default function LoginPage() {
                     type="tel"
                     inputMode="numeric"
                     autoComplete="tel-national"
+                    className="input-group-field"
                     value={phoneDigits}
                     onChange={(e) => setPhoneDigits(phoneDigitsForInput(e.target.value))}
                     maxLength={10}

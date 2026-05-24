@@ -45,10 +45,28 @@ export function InputGroup({
   className?: string;
 }) {
   return (
-    <div className={cn('input-group', className)}>
-      {prefix != null ? <span className="input-group-prefix">{prefix}</span> : null}
-      {children}
-      {suffix != null ? <span className="input-group-suffix">{suffix}</span> : null}
+    <div
+      className={cn(
+        'flex h-9 w-full items-stretch rounded-[6px] border border-[var(--border)] bg-[var(--surface)]',
+        'transition-[border-color,box-shadow] duration-150',
+        'hover:border-[var(--gray-300)]',
+        'focus-within:border-[var(--gray-900)] focus-within:shadow-[var(--shadow-focus)]',
+        className,
+      )}
+    >
+      {prefix != null ? (
+        <span className="flex h-9 w-[3.25rem] shrink-0 items-center justify-center self-center border-r border-[var(--border)] bg-[var(--gray-50)] text-[13px] font-semibold leading-none text-[var(--gray-800)]">
+          {prefix}
+        </span>
+      ) : null}
+      <div className="flex min-h-0 min-w-0 flex-1 items-center [&_.input-group-field]:w-full">
+        {children}
+      </div>
+      {suffix != null ? (
+        <span className="flex h-full shrink-0 items-center border-l border-[var(--border)] bg-[var(--gray-50)] px-3 text-[13px] font-medium leading-none text-[var(--gray-600)]">
+          {suffix}
+        </span>
+      ) : null}
     </div>
   );
 }

@@ -1,4 +1,10 @@
 import { API_BASE } from './constants';
+import {
+  clearAuthSession,
+  notifySessionExpired,
+  refreshAccessToken,
+  shouldRefreshOnUnauthorized,
+} from './authSession';
 import type {
   AdminUser,
   ApiResponse,
@@ -34,9 +40,35 @@ export const setAccessToken = (token: string | null) => {
 
 export const getAccessToken = () => accessToken;
 
+function parseApiError(json: ApiResponse<unknown>, status: number): ApiError {
+  return new ApiError(
+    json.error?.message || 'Request failed',
+    json.error?.code ?? 'SERVER_ERROR',
+    status,
+  );
+}
+
+async function handleUnauthorized(path: string, retried: boolean): Promise<boolean> {
+  if (retried || !shouldRefreshOnUnauthorized(path)) {
+    return false;
+  }
+
+  const newToken = await refreshAccessToken();
+  if (newToken) {
+    setAccessToken(newToken);
+    return true;
+  }
+
+  clearAuthSession();
+  setAccessToken(null);
+  notifySessionExpired();
+  return false;
+}
+
 async function request<T>(
   path: string,
   { body, headers, ...options }: RequestOptions = {},
+  retried = false,
 ): Promise<{ data: T; meta?: PaginatedMeta }> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
@@ -48,14 +80,30 @@ async function request<T>(
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
-  const json = (await res.json()) as ApiResponse<T>;
+  let json: ApiResponse<T>;
+  try {
+    json = (await res.json()) as ApiResponse<T>;
+  } catch {
+    if (res.status === 401) {
+      const refreshed = await handleUnauthorized(path, retried);
+      if (refreshed) return request(path, { body, headers, ...options }, true);
+      throw new ApiError('Your session has expired. Please sign in again.', 'UNAUTHORIZED', 401);
+    }
+    throw new ApiError('Request failed', 'SERVER_ERROR', res.status);
+  }
+
+  if (res.status === 401 && !json.success) {
+    const refreshed = await handleUnauthorized(path, retried);
+    if (refreshed) return request(path, { body, headers, ...options }, true);
+    throw new ApiError(
+      json.error?.message || 'Your session has expired. Please sign in again.',
+      json.error?.code ?? 'UNAUTHORIZED',
+      401,
+    );
+  }
 
   if (!res.ok || !json.success) {
-    throw new ApiError(
-      json.error?.message || 'Request failed',
-      json.error?.code,
-      res.status,
-    );
+    throw parseApiError(json, res.status);
   }
 
   return { data: json.data, meta: json.meta };
@@ -100,14 +148,25 @@ export const reportsApi = {
     resolutionNote?: string;
   }) => request<{ results: unknown[] }>('/reports/status/batch', { method: 'POST', body }),
 
-  exportCsv: async (params: Record<string, string | undefined>) => {
+  exportCsv: async (
+    params: Record<string, string | undefined>,
+    retried = false,
+  ): Promise<string> => {
     const qs = new URLSearchParams();
     Object.entries(params).forEach(([k, v]) => {
       if (v) qs.set(k, v);
     });
-    const res = await fetch(`${API_BASE}/reports/export?${qs}`, {
+    const path = `/reports/export?${qs}`;
+    const res = await fetch(`${API_BASE}${path}`, {
       headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
     });
+
+    if (res.status === 401) {
+      const refreshed = await handleUnauthorized(path, retried);
+      if (refreshed) return reportsApi.exportCsv(params, true);
+      throw new ApiError('Your session has expired. Please sign in again.', 'UNAUTHORIZED', 401);
+    }
+
     if (!res.ok) throw new ApiError('Export failed', 'SERVER_ERROR', res.status);
     return res.text();
   },
@@ -174,6 +233,7 @@ export const usersApi = {
     name?: string;
     ward?: string | null;
     sectorNo?: string | null;
+    profilePhoto?: string | null;
   }) => request<UserProfile>('/users/me', { method: 'PATCH', body }),
 
   presignProfilePhoto: (body: {

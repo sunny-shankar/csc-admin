@@ -2,12 +2,14 @@
 
 import { create } from 'zustand';
 import { authApi, setAccessToken, getAccessToken } from '@/lib/api';
+import {
+  AUTH_SESSION_REFRESHED_EVENT,
+  clearAuthSession,
+  persistAuthSession,
+  readStoredSession,
+} from '@/lib/authSession';
 import { signOutFirebase } from '@/lib/firebase/phoneAuth';
 import type { AuthUser } from '@/lib/types';
-
-const TOKEN_KEY = 'csc_admin_token';
-const REFRESH_KEY = 'csc_admin_refresh';
-const USER_KEY = 'csc_admin_user';
 
 interface AuthState {
   user: AuthUser | null;
@@ -15,7 +17,9 @@ interface AuthState {
   hydrated: boolean;
   login: (phone: string, idToken: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
+  clearSession: () => Promise<void>;
   hydrate: () => void;
+  syncFromStorage: () => void;
   setUser: (user: AuthUser) => void;
 }
 
@@ -26,19 +30,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   hydrate: () => {
     if (typeof window === 'undefined') return;
-    const token = sessionStorage.getItem(TOKEN_KEY);
-    const refreshToken = sessionStorage.getItem(REFRESH_KEY);
-    const userRaw = sessionStorage.getItem(USER_KEY);
-    if (token) setAccessToken(token);
-    let user: AuthUser | null = null;
-    if (userRaw) {
-      try {
-        user = JSON.parse(userRaw) as AuthUser;
-      } catch {
-        user = null;
-      }
-    }
+    const { accessToken, refreshToken, user } = readStoredSession();
+    if (accessToken) setAccessToken(accessToken);
     set({ user, refreshToken, hydrated: true });
+  },
+
+  syncFromStorage: () => {
+    const { accessToken, refreshToken, user } = readStoredSession();
+    if (accessToken) setAccessToken(accessToken);
+    set({ user, refreshToken });
   },
 
   login: async (phone, idToken, name) => {
@@ -47,19 +47,32 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       throw new Error('This account does not have admin access.');
     }
     setAccessToken(data.accessToken);
-    sessionStorage.setItem(TOKEN_KEY, data.accessToken);
-    sessionStorage.setItem(REFRESH_KEY, data.refreshToken);
-    sessionStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    persistAuthSession({
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      user: data.user,
+    });
     set({ user: data.user, refreshToken: data.refreshToken });
   },
 
   setUser: (user) => {
-    sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+    const refreshToken = get().refreshToken ?? readStoredSession().refreshToken;
+    const accessToken = getAccessToken() ?? readStoredSession().accessToken;
+    if (accessToken && refreshToken) {
+      persistAuthSession({ accessToken, refreshToken, user });
+    }
     set({ user });
   },
 
+  clearSession: async () => {
+    await signOutFirebase();
+    clearAuthSession();
+    setAccessToken(null);
+    set({ user: null, refreshToken: null });
+  },
+
   logout: async () => {
-    const refreshToken = sessionStorage.getItem(REFRESH_KEY);
+    const refreshToken = get().refreshToken ?? readStoredSession().refreshToken;
     const token = getAccessToken();
     if (token && refreshToken) {
       try {
@@ -68,11 +81,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         /* ignore */
       }
     }
-    await signOutFirebase();
-    setAccessToken(null);
-    sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(REFRESH_KEY);
-    sessionStorage.removeItem(USER_KEY);
-    set({ user: null, refreshToken: null });
+    await get().clearSession();
   },
 }));
+
+if (typeof window !== 'undefined') {
+  window.addEventListener(AUTH_SESSION_REFRESHED_EVENT, () => {
+    useAuthStore.getState().syncFromStorage();
+  });
+}

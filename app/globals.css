@@ -187,53 +187,29 @@ input[type='number'].input-base::-webkit-inner-spin-button {
   background: var(--surface);
 }
 
-.input-group {
-  display: flex;
-  min-height: var(--input-height);
-  overflow: hidden;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.input-group:hover {
-  border-color: var(--gray-300);
-}
-
-.input-group:focus-within {
-  border-color: var(--gray-900);
-  box-shadow: var(--shadow-focus);
-}
-
-.input-group-prefix,
-.input-group-suffix {
-  display: flex shrink-0 items-center border-[var(--border)] bg-[var(--gray-50)] px-3 text-[13px] font-medium text-[var(--gray-600)];
-}
-
-.input-group-prefix {
-  border-right: 1px solid var(--border);
-}
-
-.input-group-suffix {
-  border-left: 1px solid var(--border);
-}
-
-.input-group input {
-  min-height: calc(var(--input-height) - 2px);
-  flex: 1;
+/* Nested field inside InputGroup (login phone, etc.) */
+.input-group-field {
+  display: block;
+  height: 2.25rem;
+  width: 100%;
+  min-width: 0;
   border: none;
   background: transparent;
   padding: 0 12px;
   font-size: 14px;
+  line-height: 2.25rem;
   color: var(--text);
   outline: none;
+  box-shadow: none;
 }
 
-.input-group input::placeholder {
+.input-group-field::placeholder {
   color: var(--gray-400);
+}
+
+.input-group-field:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 .table-row-hover:hover {
