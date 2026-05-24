@@ -20,24 +20,25 @@ export const REPORT_CATEGORIES = [
   'Other',
 ] as const;
 
+/** Frappe-style indicator pills */
 export const STATUS_COLORS: Record<ReportStatus, string> = {
-  PENDING: 'bg-zinc-100 text-zinc-700',
-  IN_REVIEW: 'bg-amber-100 text-amber-800',
-  IN_PROGRESS: 'bg-blue-100 text-blue-800',
-  RESOLVED: 'bg-emerald-100 text-emerald-800',
-  REJECTED: 'bg-red-100 text-red-800',
+  PENDING: 'bg-[#f3f3f3] text-[#525252]',
+  IN_REVIEW: 'bg-[#eff6ff] text-[#1d4ed8]',
+  IN_PROGRESS: 'bg-[#fff7ed] text-[#c2410c]',
+  RESOLVED: 'bg-[#dcfce7] text-[#166534]',
+  REJECTED: 'bg-[#fef2f2] text-[#b91c1c]',
 };
 
 export const DIFFICULTY_COLORS: Record<TaskDifficulty, string> = {
-  EASY: 'bg-emerald-100 text-emerald-800',
-  MEDIUM: 'bg-amber-100 text-amber-800',
-  HIGH: 'bg-red-100 text-red-800',
+  EASY: 'bg-[#dcfce7] text-[#166534]',
+  MEDIUM: 'bg-[#fff7ed] text-[#c2410c]',
+  HIGH: 'bg-[#fef2f2] text-[#b91c1c]',
 };
 
 export const PROOF_COLORS: Record<ProofStatus, string> = {
-  PENDING: 'bg-amber-100 text-amber-800',
-  APPROVED: 'bg-emerald-100 text-emerald-800',
-  REJECTED: 'bg-red-100 text-red-800',
+  PENDING: 'bg-[#fff7ed] text-[#c2410c]',
+  APPROVED: 'bg-[#dcfce7] text-[#166534]',
+  REJECTED: 'bg-[#fef2f2] text-[#b91c1c]',
 };
 
 export const TASK_STATUSES = ['ACTIVE', 'CLOSED', 'ARCHIVED'] as const;
@@ -50,7 +51,7 @@ export const DEFAULT_TASK_REWARD: Record<(typeof TASK_DIFFICULTIES)[number], num
 };
 
 export const TASK_STATUS_COLORS: Record<(typeof TASK_STATUSES)[number], string> = {
-  ACTIVE: 'bg-emerald-100 text-emerald-800',
-  CLOSED: 'bg-zinc-100 text-zinc-700',
-  ARCHIVED: 'bg-red-100 text-red-800',
+  ACTIVE: 'bg-[#dcfce7] text-[#166534]',
+  CLOSED: 'bg-[#f3f3f3] text-[#525252]',
+  ARCHIVED: 'bg-[#f3f3f3] text-[#7c7c7c]',
 };

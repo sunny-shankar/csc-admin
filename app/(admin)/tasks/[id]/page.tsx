@@ -4,10 +4,14 @@ import { use, useState } from 'react';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Archive } from 'lucide-react';
+import { Archive } from 'lucide-react';
 import { tasksApi } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/format';
 import type { TaskVolunteer } from '@/lib/types';
+import { BackLink } from '@/components/ui/BackLink';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Textarea } from '@/components/ui/Input';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -47,11 +51,11 @@ function VolunteerProofCard({
   });
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4">
+    <Card padding="sm">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <p className="font-medium text-[#1A3C5E]">{volunteer.user?.name ?? 'Volunteer'}</p>
-          <p className="text-xs text-zinc-500">
+          <p className="font-medium text-neutral-900">{volunteer.user?.name ?? 'Volunteer'}</p>
+          <p className="text-xs text-neutral-500">
             {volunteer.user?.ward} · {formatDateTime(volunteer.nominatedAt)}
           </p>
         </div>
@@ -60,21 +64,29 @@ function VolunteerProofCard({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <p className="mb-1 text-xs font-medium text-zinc-500">Before</p>
+          <p className="mb-1 text-xs text-neutral-500">Before</p>
           {volunteer.beforePhotoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={volunteer.beforePhotoUrl} alt="Before" className="h-40 w-full rounded-lg object-cover" />
+            <img
+              src={volunteer.beforePhotoUrl}
+              alt="Before"
+              className="h-40 w-full rounded-md border border-neutral-200 object-cover"
+            />
           ) : (
-            <p className="text-sm text-zinc-400">Not uploaded</p>
+            <p className="text-sm text-neutral-400">Not uploaded</p>
           )}
         </div>
         <div>
-          <p className="mb-1 text-xs font-medium text-zinc-500">After</p>
+          <p className="mb-1 text-xs text-neutral-500">After</p>
           {volunteer.afterPhotoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={volunteer.afterPhotoUrl} alt="After" className="h-40 w-full rounded-lg object-cover" />
+            <img
+              src={volunteer.afterPhotoUrl}
+              alt="After"
+              className="h-40 w-full rounded-md border border-neutral-200 object-cover"
+            />
           ) : (
-            <p className="text-sm text-zinc-400">Not uploaded</p>
+            <p className="text-sm text-neutral-400">Not uploaded</p>
           )}
         </div>
       </div>
@@ -85,42 +97,37 @@ function VolunteerProofCard({
 
       {volunteer.proofStatus === 'PENDING' && userId && (
         <div className="mt-4 flex gap-2">
-          <button
-            type="button"
+          <Button
+            size="sm"
             onClick={() => approveMutation.mutate()}
             disabled={approveMutation.isPending}
-            className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm text-white disabled:opacity-60"
           >
             Approve
-          </button>
-          <button
-            type="button"
-            onClick={() => setRejectOpen(true)}
-            className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-700"
-          >
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setRejectOpen(true)}>
             Reject
-          </button>
+          </Button>
         </div>
       )}
 
       <Modal open={rejectOpen} title="Reject proof" onClose={() => setRejectOpen(false)}>
-        <textarea
+        <Textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder="Reason for rejection"
-          className="mb-3 w-full rounded-lg border px-3 py-2 text-sm"
           rows={3}
+          className="mb-3"
         />
-        <button
-          type="button"
+        <Button
+          variant="danger"
+          className="w-full"
           disabled={reason.length < 3 || rejectMutation.isPending}
           onClick={() => rejectMutation.mutate()}
-          className="w-full rounded-lg bg-red-600 py-2 text-sm text-white disabled:opacity-60"
         >
           Confirm reject
-        </button>
+        </Button>
       </Modal>
-    </div>
+    </Card>
   );
 }
 
@@ -153,9 +160,9 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
   const task = taskQuery.data?.data;
   if (!task) {
     return (
-      <p className="text-zinc-500">
+      <p className="text-sm text-neutral-500">
         Task not found.{' '}
-        <Link href="/tasks" className="text-[#2E86AB]">
+        <Link href="/tasks" className="text-neutral-900 hover:underline">
           Back
         </Link>
       </p>
@@ -166,58 +173,55 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="space-y-6">
-      <Link href="/tasks" className="inline-flex items-center gap-2 text-sm text-[#2E86AB] hover:underline">
-        <ArrowLeft size={16} />
-        Back to tasks
-      </Link>
+      <BackLink href="/tasks">Back to tasks</BackLink>
 
       <PageHeader
         title={task.title}
-        description={task.ward}
+        description={`Ward ${task.ward}`}
         action={
           task.status !== 'ARCHIVED' ? (
-            <button
-              type="button"
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => archiveMutation.mutate()}
               disabled={archiveMutation.isPending}
-              className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-zinc-50"
             >
               <Archive size={16} />
               Archive
-            </button>
+            </Button>
           ) : null
         }
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="rounded-xl bg-white p-5 shadow-sm lg:col-span-1">
+        <Card className="lg:col-span-1">
           <div className="mb-4 flex flex-wrap gap-2">
             <StatusBadge label={task.status} variant="taskStatus" value={task.status} />
             <StatusBadge label={task.difficulty} variant="difficulty" value={task.difficulty} />
           </div>
-          <p className="text-sm text-zinc-600">{task.description ?? 'No description'}</p>
-          <dl className="mt-4 space-y-2 text-sm">
+          <p className="text-sm text-neutral-600">{task.description ?? 'No description'}</p>
+          <dl className="mt-4 space-y-2.5 border-t border-neutral-100 pt-4 text-sm">
             <div className="flex justify-between">
-              <dt className="text-zinc-500">Dates</dt>
+              <dt className="text-neutral-500">Dates</dt>
               <dd>
                 {formatDate(task.startDate)} – {formatDate(task.endDate)}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-zinc-500">Volunteers</dt>
+              <dt className="text-neutral-500">Volunteers</dt>
               <dd>
                 {task.volunteerCount}/{task.maxVolunteers}
               </dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-zinc-500">Reward</dt>
+              <dt className="text-neutral-500">Reward</dt>
               <dd>{task.rewardPoints} pts</dd>
             </div>
           </dl>
-        </div>
+        </Card>
 
         <div className="space-y-4 lg:col-span-2">
-          <h2 className="font-semibold text-[#1A3C5E]">Volunteers & proof review</h2>
+          <p className="section-head">Volunteers</p>
           {volunteersQuery.isLoading ? (
             <LoadingSpinner />
           ) : volunteers.length === 0 ? (

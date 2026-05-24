@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import type { ConfirmationResult } from 'firebase/auth';
 import type { RecaptchaVerifier } from 'firebase/auth';
-import { Shield, Phone, KeyRound } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { isFirebaseConfigured } from '@/lib/firebase/client';
 import {
@@ -17,7 +16,6 @@ import {
 import { normalizeIndianPhone, phoneDigitsForInput } from '@/lib/phone';
 import { Button } from '@/components/ui/Button';
 import { Field, Input } from '@/components/ui/Input';
-import { Card } from '@/components/ui/Card';
 
 const DEV_BYPASS = process.env.NEXT_PUBLIC_AUTH_DEV_BYPASS === 'true';
 const RECAPTCHA_ID = 'firebase-recaptcha';
@@ -74,18 +72,16 @@ export default function LoginPage() {
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFirebaseConfigured) {
-      toast.error('Firebase is not configured in .env.local');
+      toast.error('Firebase is not configured');
       return;
     }
-
     setLoading(true);
     try {
       const phone = normalizeIndianPhone(phoneDigits);
       normalizedPhoneRef.current = phone;
-      const verifier = ensureRecaptcha();
-      confirmationRef.current = await sendPhoneOtp(phone, verifier);
+      confirmationRef.current = await sendPhoneOtp(phone, ensureRecaptcha());
       setStep('otp');
-      toast.success('OTP sent to your phone');
+      toast.success('OTP sent');
     } catch (err) {
       clearRecaptchaVerifier(recaptchaRef.current);
       recaptchaRef.current = null;
@@ -97,16 +93,11 @@ export default function LoginPage() {
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!confirmationRef.current) {
-      toast.error('Request a new OTP first');
-      return;
-    }
-
+    if (!confirmationRef.current) return;
     setLoading(true);
     try {
       const idToken = await verifyPhoneOtp(confirmationRef.current, otp);
       await login(normalizedPhoneRef.current, idToken);
-      toast.success('Signed in');
       router.push('/dashboard');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Invalid OTP');
@@ -120,7 +111,6 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(devPhone, devIdToken, devName);
-      toast.success('Signed in');
       router.push('/dashboard');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Login failed');
@@ -130,156 +120,94 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="admin-bg flex min-h-screen">
-      <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-[#1A3C5E] via-[#1e4970] to-[#122a42] p-12 text-white lg:flex">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
-            <Shield size={22} className="text-[#7ec8e3]" />
-          </div>
-          <div>
-            <p className="text-lg font-semibold">CNC Admin</p>
-            <p className="text-xs text-white/60">Smart CHD · Civic Connect</p>
-          </div>
+    <div className="flex min-h-screen items-center justify-center bg-[var(--gray-50)] p-4">
+      <div className="card w-full max-w-[380px] p-8">
+        <div className="mb-6 text-center">
+          <p className="text-[13px] font-semibold text-[var(--gray-900)]">CNC Admin</p>
+          <p className="mt-1 text-[12px] text-[var(--text-secondary)]">Sign in to continue</p>
         </div>
 
-        <div className="space-y-6">
-          <h1 className="text-4xl font-bold leading-tight tracking-tight">
-            Manage civic reports,
-            <br />
-            volunteers & community.
-          </h1>
-          <p className="max-w-md text-base leading-relaxed text-white/70">
-            Secure admin access for Chandigarh civic operations — review reports, manage tasks,
-            and track engagement across wards.
-          </p>
-          <div className="grid max-w-md gap-3 sm:grid-cols-2">
-            {['Report moderation', 'Task management', 'User oversight', 'Leaderboards'].map(
-              (item) => (
-                <div
-                  key={item}
-                  className="rounded-xl bg-white/5 px-4 py-3 text-sm ring-1 ring-white/10"
-                >
-                  {item}
-                </div>
-              ),
-            )}
-          </div>
-        </div>
-
-        <p className="text-xs text-white/40">Chandigarh Municipal Corporation · Admin Portal</p>
-      </div>
-
-      <div className="flex flex-1 items-center justify-center p-6">
-        <Card className="w-full max-w-md animate-fade-in" padding="lg">
-          <div className="mb-8">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#1A3C5E]/10 text-[#1A3C5E] lg:hidden">
-              <Shield size={24} />
-            </div>
-            <h2 className="text-2xl font-bold text-[#1A3C5E]">Welcome back</h2>
-            <p className="mt-1 text-sm text-slate-500">Sign in with your admin phone number</p>
-          </div>
-
-          {isFirebaseConfigured ? (
-            step === 'phone' ? (
-              <form onSubmit={handleSendOtp} className="space-y-5">
-                <Field label="Mobile number" hint="Admin account must have role=admin in the database.">
-                  <div className="flex overflow-hidden rounded-[0.625rem] border border-slate-200 focus-within:border-[#2E86AB] focus-within:ring-[3px] focus-within:ring-[#2E86AB]/15">
-                    <span className="flex items-center bg-slate-50 px-3 text-sm font-medium text-slate-600">
-                      +91
-                    </span>
-                    <input
-                      type="tel"
-                      inputMode="numeric"
-                      autoComplete="tel"
-                      placeholder="9876543210"
-                      value={phoneDigits}
-                      onChange={(e) => setPhoneDigits(phoneDigitsForInput(e.target.value))}
-                      maxLength={10}
-                      className="w-full px-3 py-2.5 text-sm outline-none"
-                      required
-                    />
-                  </div>
-                </Field>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={loading || phoneDigits.length !== 10}
-                >
-                  <Phone size={16} />
-                  {loading ? 'Sending OTP…' : 'Send OTP'}
-                </Button>
-              </form>
-            ) : (
-              <form onSubmit={handleVerifyOtp} className="space-y-5">
-                <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">
-                  OTP sent to{' '}
-                  <span className="font-semibold text-slate-800">{normalizedPhoneRef.current}</span>
-                </p>
-                <Field label="Enter OTP">
-                  <Input
-                    type="text"
+        {isFirebaseConfigured ? (
+          step === 'phone' ? (
+            <form onSubmit={handleSendOtp} className="space-y-4">
+              <Field label="Mobile number">
+                <div className="flex overflow-hidden rounded-[6px] border border-[var(--border)] bg-[var(--control-bg)] focus-within:border-[var(--gray-400)] focus-within:bg-white">
+                  <span className="flex items-center border-r border-[var(--border)] px-2.5 text-[13px] text-[var(--gray-600)]">
+                    +91
+                  </span>
+                  <input
+                    type="tel"
                     inputMode="numeric"
-                    autoComplete="one-time-code"
-                    placeholder="6-digit code"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    maxLength={6}
-                    className="tracking-[0.3em]"
+                    value={phoneDigits}
+                    onChange={(e) => setPhoneDigits(phoneDigitsForInput(e.target.value))}
+                    maxLength={10}
+                    className="h-7 w-full bg-transparent px-2 text-[13px] outline-none"
                     required
                   />
-                </Field>
-                <Button type="submit" className="w-full" disabled={loading || otp.length < 6}>
-                  <KeyRound size={16} />
-                  {loading ? 'Verifying…' : 'Verify & sign in'}
-                </Button>
-                <button
-                  type="button"
-                  onClick={resetOtpFlow}
-                  className="w-full text-sm font-medium text-[#2E86AB] hover:underline"
-                >
-                  Change phone number
-                </button>
-              </form>
-            )
+                </div>
+              </Field>
+              <Button type="submit" className="w-full" disabled={loading || phoneDigits.length !== 10}>
+                {loading ? 'Sending…' : 'Send OTP'}
+              </Button>
+            </form>
           ) : (
-            <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900 ring-1 ring-amber-100">
-              Firebase env vars are missing. Add them to <code>.env.local</code> or use dev login
-              below.
-            </p>
-          )}
-
-          <div id={RECAPTCHA_ID} />
-
-          {DEV_BYPASS && (
-            <div className="mt-8 border-t border-slate-100 pt-6">
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <p className="text-[12px] text-[var(--text-secondary)]">
+                OTP sent to {normalizedPhoneRef.current}
+              </p>
+              <Field label="One-time password">
+                <Input
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  maxLength={6}
+                  className="tracking-widest"
+                  required
+                />
+              </Field>
+              <Button type="submit" className="w-full" disabled={loading || otp.length < 6}>
+                {loading ? 'Verifying…' : 'Login'}
+              </Button>
               <button
                 type="button"
-                onClick={() => setShowDevLogin((v) => !v)}
-                className="text-sm font-medium text-slate-500 hover:text-slate-700"
+                onClick={resetOtpFlow}
+                className="w-full text-[12px] text-[var(--text-secondary)] hover:text-[var(--gray-900)]"
               >
-                {showDevLogin ? 'Hide' : 'Show'} dev login
+                Change number
               </button>
-              {showDevLogin && (
-                <form onSubmit={handleDevLogin} className="mt-4 space-y-3">
-                  <Input value={devPhone} onChange={(e) => setDevPhone(e.target.value)} placeholder="Phone" />
-                  <Input
-                    value={devIdToken}
-                    onChange={(e) => setDevIdToken(e.target.value)}
-                    placeholder="dev:uid:name"
-                  />
-                  <Input
-                    value={devName}
-                    onChange={(e) => setDevName(e.target.value)}
-                    placeholder="Display name"
-                  />
-                  <Button type="submit" variant="outline" className="w-full" disabled={loading}>
-                    Dev sign in
-                  </Button>
-                </form>
-              )}
-            </div>
-          )}
-        </Card>
+            </form>
+          )
+        ) : (
+          <p className="text-center text-[13px] text-[var(--text-secondary)]">
+            Configure Firebase in .env.local
+          </p>
+        )}
+
+        <div id={RECAPTCHA_ID} />
+
+        {DEV_BYPASS && (
+          <div className="mt-6 border-t border-[var(--border)] pt-4">
+            <button
+              type="button"
+              onClick={() => setShowDevLogin((v) => !v)}
+              className="text-[11px] text-[var(--text-muted)] hover:text-[var(--gray-700)]"
+            >
+              {showDevLogin ? 'Hide dev login' : 'Dev login'}
+            </button>
+            {showDevLogin && (
+              <form onSubmit={handleDevLogin} className="mt-2 space-y-2">
+                <Input value={devPhone} onChange={(e) => setDevPhone(e.target.value)} />
+                <Input value={devIdToken} onChange={(e) => setDevIdToken(e.target.value)} />
+                <Button type="submit" variant="secondary" className="w-full" size="sm" disabled={loading}>
+                  Dev sign in
+                </Button>
+              </form>
+            )}
+          </div>
+        )}
+
+        <p className="mt-6 text-center text-[11px] text-[var(--text-muted)]">
+          Chandigarh Municipal Corporation
+        </p>
       </div>
     </div>
   );

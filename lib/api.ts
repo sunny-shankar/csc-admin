@@ -4,6 +4,7 @@ import type {
   ApiResponse,
   AuthUser,
   LeaderboardResponse,
+  DashboardStats,
   PaginatedMeta,
   Report,
   Task,
@@ -169,4 +170,8 @@ export const leaderboardApi = {
     request<LeaderboardResponse>(
       `/leaderboard/monthly/ward/${encodeURIComponent(ward)}?limit=${limit}`,
     ),
+};
+
+export const analyticsApi = {
+  dashboard: () => request<DashboardStats>('/analytics/dashboard'),
 };

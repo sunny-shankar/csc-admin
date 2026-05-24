@@ -17,6 +17,14 @@ import { Pagination } from '@/components/ui/Pagination';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
+import {
+  DataTable,
+  DataTableBody,
+  DataTableHead,
+  Td,
+  Th,
+  Tr,
+} from '@/components/ui/DataTable';
 
 export default function ReportsListPage() {
   const queryClient = useQueryClient();
@@ -152,63 +160,62 @@ export default function ReportsListPage() {
       ) : reports.length === 0 ? (
         <EmptyState message="No reports match your filters." />
       ) : (
-        <div className="card overflow-hidden">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b bg-zinc-50 text-xs uppercase text-zinc-500">
-              <tr>
-                <th className="p-3">
-                  <input
-                    type="checkbox"
-                    checked={selected.size === reports.length && reports.length > 0}
-                    onChange={toggleAll}
-                  />
-                </th>
-                <th className="p-3">Code</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">Ward</th>
-                <th className="p-3">Submitted</th>
-                <th className="p-3" />
-              </tr>
-            </thead>
-            <tbody>
+        <DataTable>
+          <table className="w-full min-w-[720px]">
+            <DataTableHead>
+              <Th className="w-10">
+                <input
+                  type="checkbox"
+                  className="rounded border-[var(--gray-300)]"
+                  checked={selected.size === reports.length && reports.length > 0}
+                  onChange={toggleAll}
+                />
+              </Th>
+              <Th>Code</Th>
+              <Th>Status</Th>
+              <Th>Category</Th>
+              <Th>Ward</Th>
+              <Th>Submitted</Th>
+              <Th className="text-right" />
+            </DataTableHead>
+            <DataTableBody>
               {reports.map((r: Report) => (
-                <tr key={r.id} className="border-b last:border-0 hover:bg-zinc-50/50">
-                  <td className="p-3">
+                <Tr key={r.id}>
+                  <Td>
                     <input
                       type="checkbox"
+                      className="rounded border-[var(--gray-300)]"
                       checked={selected.has(r.id)}
                       onChange={() => toggleOne(r.id)}
                     />
-                  </td>
-                  <td className="p-3 font-medium text-[#1A3C5E]">{r.reportCode}</td>
-                  <td className="p-3">
+                  </Td>
+                  <Td className="font-medium text-neutral-900">{r.reportCode}</Td>
+                  <Td>
                     <StatusBadge label={r.status} variant="status" value={r.status} />
-                  </td>
-                  <td className="p-3">{r.category}</td>
-                  <td className="p-3">{r.submitter?.ward ?? '—'}</td>
-                  <td className="p-3 text-zinc-500">{formatDateTime(r.createdAt)}</td>
-                  <td className="p-3 text-right">
-                    <Link
-                      href={`/reports/${r.id}`}
-                      className="text-sm font-medium text-[#2E86AB] hover:underline"
-                    >
+                  </Td>
+                  <Td>{r.category}</Td>
+                  <Td>{r.submitter?.ward ?? '—'}</Td>
+                  <Td className="text-neutral-500">{formatDateTime(r.createdAt)}</Td>
+                  <Td className="text-right">
+                    <Link href={`/reports/${r.id}`} className="text-sm text-neutral-900 hover:underline">
                       View
                     </Link>
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
+            </DataTableBody>
           </table>
           {meta && (
-            <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={setPage} />
+            <div className="border-t border-neutral-100 px-4 py-3">
+              <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={setPage} />
+            </div>
           )}
-        </div>
+        </DataTable>
       )}
 
       <Modal open={batchOpen} title="Batch status update" onClose={() => setBatchOpen(false)}>
         <div className="space-y-4">
-          <p className="text-sm text-zinc-600">Updating {selected.size} report(s)</p>
+          <p className="text-sm text-neutral-600">Updating {selected.size} report(s)</p>
           <Select
             value={batchStatus}
             onChange={(e) => setBatchStatus(e.target.value as ReportStatus)}

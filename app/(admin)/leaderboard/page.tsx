@@ -7,14 +7,21 @@ import { leaderboardApi } from '@/lib/api';
 import { PageToolbar } from '@/components/ui/PageToolbar';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { Card } from '@/components/ui/Card';
 import { FilterInput, FilterSelect } from '@/components/ui/Input';
+import {
+  DataTable,
+  DataTableBody,
+  DataTableHead,
+  Td,
+  Th,
+  Tr,
+} from '@/components/ui/DataTable';
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) return <Medal className="text-amber-500" size={18} />;
-  if (rank === 2) return <Medal className="text-zinc-400" size={18} />;
-  if (rank === 3) return <Medal className="text-amber-700" size={18} />;
-  return <span className="w-[18px] text-center text-sm text-zinc-500">{rank}</span>;
+  if (rank === 1) return <Medal className="text-neutral-900" size={18} strokeWidth={1.5} />;
+  if (rank === 2) return <Medal className="text-neutral-400" size={18} strokeWidth={1.5} />;
+  if (rank === 3) return <Medal className="text-neutral-500" size={18} strokeWidth={1.5} />;
+  return <span className="w-[18px] text-center text-sm tabular-nums text-neutral-500">{rank}</span>;
 }
 
 export default function LeaderboardPage() {
@@ -29,8 +36,7 @@ export default function LeaderboardPage() {
         : leaderboardApi.monthly(limit),
   });
 
-  const leaderboard = data?.data;
-  const entries = leaderboard?.entries ?? [];
+  const entries = data?.data?.entries ?? [];
 
   return (
     <div className="space-y-4">
@@ -53,49 +59,47 @@ export default function LeaderboardPage() {
       ) : entries.length === 0 ? (
         <EmptyState message="No leaderboard entries for this period." />
       ) : (
-        <Card padding="none" className="overflow-hidden">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b bg-zinc-50 text-xs uppercase text-zinc-500">
-              <tr>
-                <th className="p-3 w-16">Rank</th>
-                <th className="p-3">Name</th>
-                <th className="p-3">Ward</th>
-                <th className="p-3 text-right">Points</th>
-                <th className="p-3">Badges</th>
-              </tr>
-            </thead>
-            <tbody>
+        <DataTable>
+          <table className="w-full">
+            <DataTableHead>
+              <Th className="w-14">#</Th>
+              <Th>Name</Th>
+              <Th>Ward</Th>
+              <Th className="text-right">Points</Th>
+              <Th>Badges</Th>
+            </DataTableHead>
+            <DataTableBody>
               {entries.map((entry) => (
-                <tr key={entry.userId} className="border-b last:border-0 hover:bg-zinc-50/50">
-                  <td className="p-3">
-                    <div className="flex items-center justify-center">
+                <Tr key={entry.userId}>
+                  <Td>
+                    <div className="flex justify-center">
                       <RankBadge rank={entry.rank} />
                     </div>
-                  </td>
-                  <td className="p-3 font-medium text-[#1A3C5E]">{entry.name}</td>
-                  <td className="p-3">{entry.ward ?? '—'}</td>
-                  <td className="p-3 text-right font-semibold">{entry.points.toLocaleString()}</td>
-                  <td className="p-3">
+                  </Td>
+                  <Td className="font-medium text-neutral-900">{entry.name}</Td>
+                  <Td>{entry.ward ?? '—'}</Td>
+                  <Td className="text-right font-medium tabular-nums">{entry.points.toLocaleString()}</Td>
+                  <Td>
                     {entry.badgeIds.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
                         {entry.badgeIds.map((badge) => (
                           <span
                             key={badge}
-                            className="rounded-full bg-[#2E86AB]/10 px-2 py-0.5 text-xs text-[#1A3C5E]"
+                            className="rounded px-1.5 py-0.5 text-[11px] font-medium bg-neutral-100 text-neutral-600"
                           >
                             {badge}
                           </span>
                         ))}
                       </div>
                     ) : (
-                      <span className="text-zinc-400">—</span>
+                      <span className="text-neutral-400">—</span>
                     )}
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
+            </DataTableBody>
           </table>
-        </Card>
+        </DataTable>
       )}
     </div>
   );

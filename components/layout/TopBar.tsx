@@ -12,9 +12,9 @@ const titles: Record<string, string> = {
 };
 
 function resolveTitle(pathname: string): string {
-  if (pathname.startsWith('/reports/')) return 'Report details';
-  if (pathname.startsWith('/tasks/new')) return 'Create task';
-  if (pathname.startsWith('/tasks/')) return 'Task details';
+  if (pathname.startsWith('/reports/')) return 'Report';
+  if (pathname.startsWith('/tasks/new')) return 'New task';
+  if (pathname.startsWith('/tasks/')) return 'Task';
   return titles[pathname] ?? 'Admin';
 }
 
@@ -24,16 +24,13 @@ export function TopBar() {
   const title = resolveTitle(pathname);
 
   return (
-    <header className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/80 px-6 py-2.5 backdrop-blur-md lg:px-8">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Civic Connect</p>
-          <h2 className="text-base font-semibold text-[#1A3C5E]">{title}</h2>
-        </div>
-        <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600 sm:flex">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" />
-          Signed in as <span className="font-medium text-slate-800">{user?.name}</span>
-        </div>
+    <header
+      className="sticky top-0 z-10 flex shrink-0 items-center border-b border-[var(--border)] bg-white"
+      style={{ height: 'var(--navbar-height)' }}
+    >
+      <div className="flex w-full items-center justify-between px-4">
+        <h1 className="text-[14px] font-semibold text-[var(--gray-900)]">{title}</h1>
+        <span className="text-[12px] text-[var(--text-secondary)]">{user?.name}</span>
       </div>
     </header>
   );

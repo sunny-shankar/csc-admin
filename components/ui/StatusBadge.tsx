@@ -21,16 +21,16 @@ export function StatusBadge({ label, variant = 'status', value }: StatusBadgePro
   const colors =
     value && variant in colorMaps
       ? colorMaps[variant][value as keyof typeof colorMaps[typeof variant]]
-      : 'bg-slate-100 text-slate-700';
+      : 'bg-[var(--gray-100)] text-[var(--gray-700)]';
 
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ring-1 ring-inset ring-black/5',
+        'inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium leading-none',
         colors,
       )}
     >
-      {label}
+      {label.replace(/_/g, ' ')}
     </span>
   );
 }

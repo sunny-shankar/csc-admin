@@ -4,14 +4,18 @@ import { use, useState } from 'react';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { reportsApi } from '@/lib/api';
 import { REPORT_STATUSES } from '@/lib/constants';
 import { formatDateTime } from '@/lib/format';
 import type { ReportStatus } from '@/lib/types';
+import { BackLink } from '@/components/ui/BackLink';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { Select, Textarea } from '@/components/ui/Input';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 
 export default function ReportDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -45,12 +49,12 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
   if (isLoading) return <LoadingSpinner />;
   if (!report) {
     return (
-      <div className="text-center text-zinc-500">
+      <p className="text-sm text-neutral-500">
         Report not found.{' '}
-        <Link href="/reports" className="text-[#2E86AB]">
+        <Link href="/reports" className="text-neutral-900 hover:underline">
           Back to list
         </Link>
-      </div>
+      </p>
     );
   }
 
@@ -58,13 +62,7 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="space-y-6">
-      <Link
-        href="/reports"
-        className="inline-flex items-center gap-2 text-sm text-[#2E86AB] hover:underline"
-      >
-        <ArrowLeft size={16} />
-        Back to reports
-      </Link>
+      <BackLink href="/reports">Back to reports</BackLink>
 
       <PageHeader
         title={report.reportCode}
@@ -73,69 +71,66 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-6">
+        <div className="space-y-4">
           {report.photoUrl && (
-            <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+            <Card padding="none" className="overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={report.photoUrl}
-                alt="Report"
-                className="max-h-96 w-full object-cover"
-              />
-            </div>
+              <img src={report.photoUrl} alt="Report" className="max-h-96 w-full object-cover" />
+            </Card>
           )}
 
-          <div className="rounded-xl bg-white p-5 shadow-sm">
-            <h2 className="mb-3 font-semibold text-[#1A3C5E]">Details</h2>
-            <dl className="space-y-2 text-sm">
+          <Card>
+            <p className="section-head">Details</p>
+            <dl className="mt-4 space-y-2.5 text-sm">
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Submitter</dt>
-                <dd>{report.submitter?.name ?? '—'}</dd>
+                <dt className="text-neutral-500">Submitter</dt>
+                <dd className="text-neutral-900">{report.submitter?.name ?? '—'}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Phone</dt>
+                <dt className="text-neutral-500">Phone</dt>
                 <dd>{report.submitter?.phone ?? '—'}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Ward</dt>
+                <dt className="text-neutral-500">Ward</dt>
                 <dd>{report.submitter?.ward ?? '—'}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Address</dt>
+                <dt className="text-neutral-500">Address</dt>
                 <dd className="text-right">{report.address ?? '—'}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Points awarded</dt>
+                <dt className="text-neutral-500">Points</dt>
                 <dd>{report.pointsAwarded}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Created</dt>
+                <dt className="text-neutral-500">Created</dt>
                 <dd>{formatDateTime(report.createdAt)}</dd>
               </div>
             </dl>
             {report.description && (
-              <p className="mt-4 text-sm text-zinc-700">{report.description}</p>
+              <p className="mt-4 border-t border-neutral-100 pt-4 text-sm text-neutral-700">
+                {report.description}
+              </p>
             )}
             <a
               href={mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 text-sm text-[#2E86AB] hover:underline"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm text-neutral-600 hover:text-neutral-900"
             >
               <ExternalLink size={14} />
-              Open in Google Maps ({report.latitude}, {report.longitude})
+              View on map
             </a>
-          </div>
+          </Card>
         </div>
 
-        <div className="space-y-6">
-          <div className="rounded-xl bg-white p-5 shadow-sm">
-            <h2 className="mb-4 font-semibold text-[#1A3C5E]">Update status</h2>
-            <div className="space-y-3">
-              <select
+        <div className="space-y-4">
+          <Card>
+            <p className="section-head">Update status</p>
+            <div className="mt-4 space-y-3">
+              <Select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as ReportStatus)}
-                className="w-full rounded-lg border px-3 py-2 text-sm"
               >
                 <option value="">Select new status</option>
                 {REPORT_STATUSES.map((s) => (
@@ -143,53 +138,50 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
                     {s}
                   </option>
                 ))}
-              </select>
-              <textarea
+              </Select>
+              <Textarea
                 placeholder="Admin note"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="w-full rounded-lg border px-3 py-2 text-sm"
                 rows={2}
               />
-              <textarea
+              <Textarea
                 placeholder="Resolution note"
                 value={resolutionNote}
                 onChange={(e) => setResolutionNote(e.target.value)}
-                className="w-full rounded-lg border px-3 py-2 text-sm"
                 rows={2}
               />
-              <button
-                type="button"
+              <Button
+                className="w-full"
                 disabled={!status || updateMutation.isPending}
                 onClick={() => updateMutation.mutate()}
-                className="w-full rounded-lg bg-[#1A3C5E] py-2 text-sm font-medium text-white disabled:opacity-60"
               >
                 {updateMutation.isPending ? 'Saving…' : 'Save status'}
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
 
-          <div className="rounded-xl bg-white p-5 shadow-sm">
-            <h2 className="mb-4 font-semibold text-[#1A3C5E]">Status history</h2>
+          <Card>
+            <p className="section-head">Status history</p>
             {!report.statusHistory?.length ? (
-              <p className="text-sm text-zinc-500">No history yet.</p>
+              <p className="mt-3 text-sm text-neutral-500">No history yet.</p>
             ) : (
-              <ul className="space-y-4 border-l-2 border-zinc-200 pl-4">
+              <ul className="mt-4 space-y-4 border-l border-neutral-200 pl-4">
                 {report.statusHistory.map((h) => (
                   <li key={h.id} className="relative">
-                    <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-[#2E86AB]" />
-                    <p className="text-sm font-medium">
+                    <span className="absolute -left-[17px] top-1.5 h-1.5 w-1.5 rounded-full bg-neutral-400" />
+                    <p className="text-sm font-medium text-neutral-900">
                       {h.oldStatus ?? '—'} → {h.newStatus}
                     </p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-neutral-500">
                       {h.changedByName ?? 'System'} · {formatDateTime(h.createdAt)}
                     </p>
-                    {h.note && <p className="mt-1 text-sm text-zinc-600">{h.note}</p>}
+                    {h.note && <p className="mt-1 text-sm text-neutral-600">{h.note}</p>}
                   </li>
                 ))}
               </ul>
             )}
-          </div>
+          </Card>
         </div>
       </div>
     </div>

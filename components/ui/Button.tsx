@@ -11,18 +11,18 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-[#1A3C5E] text-white hover:bg-[#122a42] shadow-sm shadow-[#1A3C5E]/20',
+    'bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] border border-transparent',
   secondary:
-    'bg-[#2E86AB] text-white hover:bg-[#256f8f] shadow-sm shadow-[#2E86AB]/20',
+    'bg-[var(--control-bg)] text-[var(--gray-800)] hover:bg-[var(--gray-200)] border border-transparent',
   outline:
-    'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300',
-  ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
-  danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm',
+    'border border-[var(--border)] bg-white text-[var(--gray-700)] hover:bg-[var(--gray-50)]',
+  ghost: 'text-[var(--gray-700)] hover:bg-[var(--control-bg)]',
+  danger: 'bg-red-600 text-white hover:bg-red-700 border border-transparent',
 };
 
 const sizes: Record<Size, string> = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2.5 text-sm',
+  sm: 'h-7 px-2.5 text-xs gap-1.5',
+  md: 'h-7 px-3 text-[13px] gap-1.5',
 };
 
 export function Button({
@@ -38,7 +38,7 @@ export function Button({
       type="button"
       disabled={disabled}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-150',
+        'inline-flex items-center justify-center rounded-[6px] font-medium transition-colors',
         'disabled:pointer-events-none disabled:opacity-50',
         variants[variant],
         sizes[size],

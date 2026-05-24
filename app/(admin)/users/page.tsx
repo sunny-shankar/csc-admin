@@ -12,7 +12,16 @@ import { Pagination } from '@/components/ui/Pagination';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Modal } from '@/components/ui/Modal';
-import { FilterInput, FilterSelect } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { FilterInput, FilterSelect, Textarea } from '@/components/ui/Input';
+import {
+  DataTable,
+  DataTableBody,
+  DataTableHead,
+  Td,
+  Th,
+  Tr,
+} from '@/components/ui/DataTable';
 
 function BanModal({
   user,
@@ -42,24 +51,24 @@ function BanModal({
 
   return (
     <Modal open={open} title={`Ban ${user.name}`} onClose={onClose}>
-      <p className="mb-3 text-sm text-zinc-600">
+      <p className="mb-3 text-sm text-neutral-600">
         Banned users cannot submit reports or volunteer for tasks.
       </p>
-      <textarea
+      <Textarea
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         placeholder="Reason for ban (required)"
-        className="mb-3 w-full rounded-lg border px-3 py-2 text-sm"
         rows={3}
+        className="mb-3"
       />
-      <button
-        type="button"
+      <Button
+        variant="danger"
+        className="w-full"
         disabled={reason.length < 3 || banMutation.isPending}
         onClick={() => banMutation.mutate()}
-        className="w-full rounded-lg bg-red-600 py-2 text-sm font-medium text-white disabled:opacity-60"
       >
         {banMutation.isPending ? 'Banning…' : 'Confirm ban'}
-      </button>
+      </Button>
     </Modal>
   );
 }
@@ -136,50 +145,48 @@ export default function UsersPage() {
       ) : users.length === 0 ? (
         <EmptyState message="No users match your filters." />
       ) : (
-        <div className="overflow-hidden rounded-xl bg-white shadow-sm">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b bg-zinc-50 text-xs uppercase text-zinc-500">
-              <tr>
-                <th className="p-3">Name</th>
-                <th className="p-3">Phone</th>
-                <th className="p-3">Ward</th>
-                <th className="p-3">Points</th>
-                <th className="p-3">Reports</th>
-                <th className="p-3">Role</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Joined</th>
-                <th className="p-3" />
-              </tr>
-            </thead>
-            <tbody>
+        <DataTable>
+          <table className="w-full min-w-[800px]">
+            <DataTableHead>
+              <Th>Name</Th>
+              <Th>Phone</Th>
+              <Th>Ward</Th>
+              <Th>Points</Th>
+              <Th>Reports</Th>
+              <Th>Role</Th>
+              <Th>Status</Th>
+              <Th>Joined</Th>
+              <Th className="text-right" />
+            </DataTableHead>
+            <DataTableBody>
               {users.map((u) => (
-                <tr key={u.id} className="border-b last:border-0 hover:bg-zinc-50/50">
-                  <td className="p-3 font-medium text-[#1A3C5E]">{u.name}</td>
-                  <td className="p-3 text-zinc-600">{u.phone ?? '—'}</td>
-                  <td className="p-3">{u.ward ?? '—'}</td>
-                  <td className="p-3">{u.totalPoints.toLocaleString()}</td>
-                  <td className="p-3">{u.reportCount ?? '—'}</td>
-                  <td className="p-3 capitalize">{u.role}</td>
-                  <td className="p-3">
+                <Tr key={u.id}>
+                  <Td className="font-medium text-neutral-900">{u.name}</Td>
+                  <Td>{u.phone ?? '—'}</Td>
+                  <Td>{u.ward ?? '—'}</Td>
+                  <Td>{u.totalPoints.toLocaleString()}</Td>
+                  <Td>{u.reportCount ?? '—'}</Td>
+                  <Td className="capitalize">{u.role}</Td>
+                  <Td>
                     {u.isBanned ? (
-                      <span className="inline-flex rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                      <span className="inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium bg-[#fef2f2] text-[#b91c1c]">
                         Banned
                       </span>
                     ) : (
-                      <span className="inline-flex rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                      <span className="inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium bg-[#dcfce7] text-[#166534]">
                         Active
                       </span>
                     )}
-                  </td>
-                  <td className="p-3 text-zinc-500">{formatDateTime(u.createdAt)}</td>
-                  <td className="p-3 text-right">
-                    {u.role !== 'admin' && (
-                      u.isBanned ? (
+                  </Td>
+                  <Td className="text-neutral-500">{formatDateTime(u.createdAt)}</Td>
+                  <Td className="text-right">
+                    {u.role !== 'admin' &&
+                      (u.isBanned ? (
                         <button
                           type="button"
                           onClick={() => unbanMutation.mutate(u.id)}
                           disabled={unbanMutation.isPending}
-                          className="inline-flex items-center gap-1 text-sm text-emerald-700 hover:underline disabled:opacity-60"
+                          className="inline-flex items-center gap-1 text-sm text-neutral-600 hover:text-neutral-900 disabled:opacity-60"
                         >
                           <ShieldCheck size={14} />
                           Unban
@@ -188,22 +195,23 @@ export default function UsersPage() {
                         <button
                           type="button"
                           onClick={() => setBanTarget(u)}
-                          className="inline-flex items-center gap-1 text-sm text-red-700 hover:underline"
+                          className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-700"
                         >
                           <Ban size={14} />
                           Ban
                         </button>
-                      )
-                    )}
-                  </td>
-                </tr>
+                      ))}
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
+            </DataTableBody>
           </table>
           {meta && (
-            <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={setPage} />
+            <div className="border-t border-neutral-100 px-4">
+              <Pagination page={meta.page} totalPages={meta.totalPages} onPageChange={setPage} />
+            </div>
           )}
-        </div>
+        </DataTable>
       )}
 
       <BanModal

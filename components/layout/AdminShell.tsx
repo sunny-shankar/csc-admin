@@ -20,7 +20,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   if (!hydrated) {
     return (
       <div className="admin-bg flex min-h-screen items-center justify-center">
-        <LoadingSpinner label="Loading workspace…" />
+        <LoadingSpinner />
       </div>
     );
   }
@@ -32,8 +32,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar />
-        <main className="flex-1 overflow-auto px-6 py-4 lg:px-8 lg:py-5">
-          <div className="mx-auto max-w-7xl animate-fade-in">{children}</div>
+        <main className="flex-1 overflow-auto p-4 md:p-5">
+          <div className="mx-auto max-w-[1200px]">{children}</div>
         </main>
       </div>
     </div>

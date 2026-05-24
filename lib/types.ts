@@ -131,3 +131,16 @@ export interface LeaderboardResponse {
   ownRank?: LeaderboardEntry | null;
   ward?: string;
 }
+
+export interface DashboardStats {
+  reports: {
+    total: number;
+    pending: number;
+    resolved: number;
+    resolvedRate: number;
+    byStatus: Record<string, number>;
+    byCategory: Record<string, number>;
+  };
+  users: { total: number };
+  tasks: { active: number };
+}

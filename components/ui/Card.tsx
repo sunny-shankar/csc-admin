@@ -9,21 +9,14 @@ interface CardProps {
 
 const paddingMap = {
   none: '',
-  sm: 'p-4',
-  md: 'p-5',
-  lg: 'p-6',
+  sm: 'p-3',
+  md: 'p-4',
+  lg: 'p-5',
 };
 
 export function Card({ children, className, hover, padding = 'md' }: CardProps) {
   return (
-    <div
-      className={cn(
-        'card',
-        paddingMap[padding],
-        hover && 'card-hover',
-        className,
-      )}
-    >
+    <div className={cn('card', paddingMap[padding], hover && 'card-hover', className)}>
       {children}
     </div>
   );

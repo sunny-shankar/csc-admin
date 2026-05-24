@@ -9,7 +9,6 @@ import {
   Users,
   Trophy,
   LogOut,
-  Shield,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/cn';
@@ -22,13 +21,14 @@ const nav = [
   { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
 ];
 
-function UserAvatar({ name }: { name: string }) {
-  const initial = name.trim().charAt(0).toUpperCase() || 'A';
-  return (
-    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2E86AB] text-sm font-semibold text-white ring-2 ring-white/20">
-      {initial}
-    </div>
-  );
+function initials(name?: string) {
+  if (!name) return 'A';
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 }
 
 export function Sidebar() {
@@ -37,25 +37,16 @@ export function Sidebar() {
   const user = useAuthStore((s) => s.user);
 
   return (
-    <aside className="sticky top-0 flex h-screen w-[17.5rem] shrink-0 flex-col border-r border-[#152f4a]/30 bg-gradient-to-b from-[#1A3C5E] to-[#122a42] text-white shadow-xl shadow-[#1A3C5E]/10">
-      <div className="border-b border-white/10 px-5 py-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
-            <Shield size={20} className="text-[#7ec8e3]" />
-          </div>
-          <div>
-            <p className="text-base font-semibold tracking-tight">CNC Admin</p>
-            <p className="text-[11px] font-medium uppercase tracking-wider text-white/50">
-              Smart CHD
-            </p>
-          </div>
-        </div>
+    <aside
+      className="sticky top-0 flex h-screen shrink-0 flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)]"
+      style={{ width: 'var(--sidebar-width)' }}
+    >
+      <div className="border-b border-[var(--sidebar-border)] px-4 py-3">
+        <p className="text-[13px] font-semibold text-[var(--gray-900)]">CNC Admin</p>
+        <p className="text-[11px] text-[var(--text-muted)]">Smart Chandigarh</p>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/40">
-          Menu
-        </p>
+      <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
         {nav.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`);
           return (
@@ -63,42 +54,35 @@ export function Sidebar() {
               key={href}
               href={href}
               className={cn(
-                'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
+                'flex items-center gap-2 rounded-[8px] px-2.5 py-1.5 text-[13px] transition-colors',
                 active
-                  ? 'bg-[#2E86AB] text-white shadow-md shadow-black/10'
-                  : 'text-white/75 hover:bg-white/10 hover:text-white',
+                  ? 'bg-[var(--sidebar-active)] font-medium text-[var(--gray-900)]'
+                  : 'text-[var(--gray-700)] hover:bg-[var(--sidebar-hover)]',
               )}
             >
-              <Icon
-                size={18}
-                className={cn(
-                  'shrink-0 transition-colors',
-                  active ? 'text-white' : 'text-white/60 group-hover:text-white',
-                )}
-              />
+              <Icon size={16} strokeWidth={1.75} className="shrink-0 opacity-80" />
               {label}
-              {active && (
-                <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white/90" aria-hidden />
-              )}
             </Link>
           );
         })}
       </nav>
 
-      <div className="border-t border-white/10 p-4">
-        <div className="mb-3 flex items-center gap-3 rounded-xl bg-white/5 px-3 py-3 ring-1 ring-white/10">
-          {user?.name && <UserAvatar name={user.name} />}
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{user?.name ?? 'Admin'}</p>
-            <p className="truncate text-xs text-white/50">{user?.phone ?? 'Administrator'}</p>
+      <div className="border-t border-[var(--sidebar-border)] p-2">
+        <div className="flex items-center gap-2 rounded-[8px] px-2 py-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--gray-200)] text-[11px] font-semibold text-[var(--gray-700)]">
+            {initials(user?.name)}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-medium text-[var(--gray-900)]">{user?.name}</p>
+            <p className="truncate text-[11px] text-[var(--text-muted)]">{user?.phone ?? 'Admin'}</p>
           </div>
         </div>
         <button
           type="button"
           onClick={() => logout()}
-          className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-white/75 transition hover:bg-white/10 hover:text-white"
+          className="mt-0.5 flex w-full items-center gap-2 rounded-[8px] px-2.5 py-1.5 text-[13px] text-[var(--gray-700)] transition hover:bg-[var(--sidebar-hover)]"
         >
-          <LogOut size={16} />
+          <LogOut size={15} strokeWidth={1.75} />
           Sign out
         </button>
       </div>
