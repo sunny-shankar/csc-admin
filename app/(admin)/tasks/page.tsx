@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { tasksApi } from '@/lib/api';
 import { TASK_DIFFICULTIES, TASK_STATUSES } from '@/lib/constants';
+import { taskDifficultyLabel, taskStatusLabel } from '@/lib/statusLabels';
 import { formatDate } from '@/lib/format';
 import { DateCell } from '@/components/ui/DateCell';
 import { PageToolbar } from '@/components/ui/PageToolbar';
@@ -78,7 +79,7 @@ export default function TasksListPage() {
           <option value="">All statuses</option>
           {TASK_STATUSES.map((s) => (
             <option key={s} value={s}>
-              {s}
+              {taskStatusLabel(s)}
             </option>
           ))}
         </FilterSelect>
@@ -92,7 +93,7 @@ export default function TasksListPage() {
           <option value="">All difficulties</option>
           {TASK_DIFFICULTIES.map((d) => (
             <option key={d} value={d}>
-              {d}
+              {taskDifficultyLabel(d)}
             </option>
           ))}
         </FilterSelect>
@@ -163,7 +164,7 @@ export default function TasksListPage() {
                     </span>
                   </Td>
                   <Td>
-                    <StatusBadge label={t.status} variant="taskStatus" value={t.status} />
+                    <StatusBadge variant="taskStatus" value={t.status} />
                   </Td>
                   <Td>{t.ward}</Td>
                   <Td className="whitespace-nowrap text-[11px] text-[var(--text-secondary)]">

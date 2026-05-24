@@ -6,7 +6,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { Download, RefreshCw } from 'lucide-react';
 import { reportsApi } from '@/lib/api';
-import { REPORT_CATEGORIES, REPORT_STATUSES } from '@/lib/constants';
+import { REPORT_CATEGORIES } from '@/lib/constants';
+import { ReportStatusSelect } from '@/components/reports/ReportStatusSelect';
 import { DateCell } from '@/components/ui/DateCell';
 import type { Report, ReportStatus } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
@@ -116,20 +117,15 @@ export default function ReportsListPage() {
           </>
         }
       >
-        <FilterSelect
+        <ReportStatusSelect
+          allowEmpty
+          filter
           value={status}
           onChange={(e) => {
             setStatus(e.target.value);
             setPage(1);
           }}
-        >
-          <option value="">All statuses</option>
-          {REPORT_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </FilterSelect>
+        />
         <FilterSelect
           value={category}
           onChange={(e) => {
@@ -193,7 +189,7 @@ export default function ReportsListPage() {
                   </Td>
                   <Td className="font-medium text-neutral-900">{r.reportCode}</Td>
                   <Td>
-                    <StatusBadge label={r.status} variant="status" value={r.status} />
+                    <StatusBadge variant="status" value={r.status} />
                   </Td>
                   <Td>{r.category}</Td>
                   <Td>
@@ -232,16 +228,10 @@ export default function ReportsListPage() {
       <Modal open={batchOpen} title="Batch status update" onClose={() => setBatchOpen(false)}>
         <div className="space-y-4">
           <p className="text-sm text-neutral-600">Updating {selected.size} report(s)</p>
-          <Select
+          <ReportStatusSelect
             value={batchStatus}
             onChange={(e) => setBatchStatus(e.target.value as ReportStatus)}
-          >
-            {REPORT_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </Select>
+          />
           <Textarea
             placeholder="Note (optional)"
             value={batchNote}

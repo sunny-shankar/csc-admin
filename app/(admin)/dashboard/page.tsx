@@ -19,6 +19,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { formatPercent } from '@/lib/format';
 import { StatCard } from '@/components/ui/StatCard';
 import { Card } from '@/components/ui/Card';
+import { reportStatusLabel } from '@/lib/statusLabels';
 
 const COLORS = ['#171717', '#404040', '#737373', '#a3a3a3', '#d4d4d4'];
 
@@ -49,8 +50,9 @@ export default function DashboardPage() {
     value,
   }));
 
-  const statusData = Object.entries(stats.reports.byStatus).map(([name, value]) => ({
-    name,
+  const statusData = Object.entries(stats.reports.byStatus).map(([code, value]) => ({
+    name: reportStatusLabel(code),
+    code,
     value,
   }));
 

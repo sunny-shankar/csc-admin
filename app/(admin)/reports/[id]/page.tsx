@@ -6,7 +6,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { ExternalLink } from 'lucide-react';
 import { reportsApi } from '@/lib/api';
-import { REPORT_STATUSES } from '@/lib/constants';
 import { formatDateTime } from '@/lib/format';
 import { DetailGrid } from '@/components/ui/DetailGrid';
 import type { ReportStatus } from '@/lib/types';
@@ -15,8 +14,10 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { Select, Textarea } from '@/components/ui/Input';
+import { Field, Textarea } from '@/components/ui/Input';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { ReportStatusSelect } from '@/components/reports/ReportStatusSelect';
+import { StatusHistoryList } from '@/components/reports/StatusHistoryList';
 
 export default function ReportDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -41,6 +42,9 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
       }),
     onSuccess: () => {
       toast.success('Status updated');
+      setStatus('');
+      setNote('');
+      setResolutionNote('');
       queryClient.invalidateQueries({ queryKey: ['report', id] });
       queryClient.invalidateQueries({ queryKey: ['reports'] });
     },
@@ -50,9 +54,9 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
   if (isLoading) return <LoadingSpinner />;
   if (!report) {
     return (
-      <p className="text-sm text-neutral-500">
+      <p className="text-[13px] text-[var(--text-secondary)]">
         Report not found.{' '}
-        <Link href="/reports" className="text-neutral-900 hover:underline">
+        <Link href="/reports" className="text-[var(--gray-900)] hover:underline">
           Back to list
         </Link>
       </p>
@@ -60,18 +64,20 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
   }
 
   const mapUrl = `https://www.google.com/maps?q=${report.latitude},${report.longitude}`;
+  const showResolutionNote =
+    status === 'RESOLVED' || status === 'REJECTED' || report.status === 'RESOLVED';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <BackLink href="/reports">Back to reports</BackLink>
 
       <PageHeader
         title={report.reportCode}
         description={`${report.category}${report.subcategory ? ` · ${report.subcategory}` : ''}`}
-        action={<StatusBadge label={report.status} variant="status" value={report.status} />}
+        action={<StatusBadge variant="status" value={report.status} />}
       />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <div className="space-y-4">
           {report.photoUrl && (
             <Card padding="none" className="overflow-hidden">
@@ -108,7 +114,7 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
               />
             </div>
             {report.description && (
-              <p className="mt-4 border-t border-neutral-100 pt-4 text-sm text-neutral-700">
+              <p className="mt-4 border-t border-[var(--border)] pt-4 text-[13px] leading-relaxed text-[var(--gray-800)]">
                 {report.description}
               </p>
             )}
@@ -116,7 +122,7 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
               href={mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-1.5 text-sm text-neutral-600 hover:text-neutral-900"
+              className="mt-4 inline-flex items-center gap-1.5 text-[13px] text-[var(--text-secondary)] hover:text-[var(--gray-900)]"
             >
               <ExternalLink size={14} />
               View on map
@@ -126,61 +132,72 @@ export default function ReportDetailPage({ params }: { params: Promise<{ id: str
 
         <div className="space-y-4">
           <Card>
-            <p className="section-head">Update status</p>
-            <div className="mt-4 space-y-3">
-              <Select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as ReportStatus)}
-              >
-                <option value="">Select new status</option>
-                {REPORT_STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </Select>
-              <Textarea
-                placeholder="Admin note"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                rows={2}
-              />
-              <Textarea
-                placeholder="Resolution note"
-                value={resolutionNote}
-                onChange={(e) => setResolutionNote(e.target.value)}
-                rows={2}
-              />
-              <Button
-                className="w-full"
-                disabled={!status || updateMutation.isPending}
-                onClick={() => updateMutation.mutate()}
-              >
-                {updateMutation.isPending ? 'Saving…' : 'Save status'}
-              </Button>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
+              <p className="section-head !mb-0">Update status</p>
+              <div className="flex items-center gap-2 text-[12px] text-[var(--text-secondary)]">
+                <span>Current</span>
+                <StatusBadge variant="status" value={report.status} />
+              </div>
             </div>
+
+            <form
+              className="mt-4 space-y-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!status) return;
+                updateMutation.mutate();
+              }}
+            >
+              <Field label="New status" required>
+                <ReportStatusSelect
+                  allowEmpty
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as ReportStatus)}
+                  emptyLabel="Choose status…"
+                  exclude={[report.status]}
+                />
+              </Field>
+
+              <Field label="Admin note" hint="Optional — shown in status history">
+                <Textarea
+                  placeholder="e.g. Assigned to ward officer for inspection"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={2}
+                  className="!min-h-[4.5rem]"
+                />
+              </Field>
+
+              {showResolutionNote ? (
+                <Field
+                  label="Resolution note"
+                  hint={status === 'REJECTED' ? 'Reason for rejection' : 'How the issue was resolved'}
+                >
+                  <Textarea
+                    placeholder="Describe the outcome"
+                    value={resolutionNote}
+                    onChange={(e) => setResolutionNote(e.target.value)}
+                    rows={2}
+                    className="!min-h-[4.5rem]"
+                  />
+                </Field>
+              ) : null}
+
+              <div className="flex justify-end pt-1">
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={!status || updateMutation.isPending}
+                >
+                  {updateMutation.isPending ? 'Saving…' : 'Save changes'}
+                </Button>
+              </div>
+            </form>
           </Card>
 
           <Card>
             <p className="section-head">Status history</p>
-            {!report.statusHistory?.length ? (
-              <p className="mt-3 text-sm text-neutral-500">No history yet.</p>
-            ) : (
-              <ul className="mt-4 space-y-4 border-l border-neutral-200 pl-4">
-                {report.statusHistory.map((h) => (
-                  <li key={h.id} className="relative">
-                    <span className="absolute -left-[17px] top-1.5 h-1.5 w-1.5 rounded-full bg-neutral-400" />
-                    <p className="text-sm font-medium text-neutral-900">
-                      {h.oldStatus ?? '—'} → {h.newStatus}
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      {h.changedByName ?? 'System'} · {formatDateTime(h.createdAt)}
-                    </p>
-                    {h.note && <p className="mt-1 text-sm text-neutral-600">{h.note}</p>}
-                  </li>
-                ))}
-              </ul>
-            )}
+            <StatusHistoryList items={report.statusHistory ?? []} />
           </Card>
         </div>
       </div>

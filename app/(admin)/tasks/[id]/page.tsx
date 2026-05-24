@@ -68,7 +68,7 @@ function VolunteerProofCard({
             {volunteer.user?.ward} · {formatDateTime(volunteer.nominatedAt)}
           </p>
         </div>
-        <StatusBadge label={volunteer.proofStatus} variant="proof" value={volunteer.proofStatus} />
+        <StatusBadge variant="proof" value={volunteer.proofStatus} />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -205,8 +205,8 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-1">
           <div className="mb-4 flex flex-wrap gap-2">
-            <StatusBadge label={task.status} variant="taskStatus" value={task.status} />
-            <StatusBadge label={task.difficulty} variant="difficulty" value={task.difficulty} />
+            <StatusBadge variant="taskStatus" value={task.status} />
+            <StatusBadge variant="difficulty" value={task.difficulty} />
           </div>
           <p className="text-[13px] text-[var(--text-secondary)]">{task.description ?? 'No description'}</p>
           <div className="mt-4 border-t border-[var(--border)] pt-4">
