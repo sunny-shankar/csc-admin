@@ -3,6 +3,7 @@ import type {
   AdminUser,
   ApiResponse,
   AuthUser,
+  UserProfile,
   LeaderboardResponse,
   DashboardStats,
   PaginatedMeta,
@@ -145,7 +146,41 @@ export const tasksApi = {
     }),
 };
 
+export interface PresignUpload {
+  uploadUrl: string;
+  key: string;
+  contentType: string;
+  expiresIn: number;
+  maxBytes: number;
+  viewUrl?: string;
+}
+
+export interface ConfirmUpload {
+  key: string;
+  contentType: string;
+  size: number;
+  viewUrl: string;
+}
+
+export const uploadsApi = {
+  confirm: (body: { key: string; purpose: 'avatar' | 'report' | 'task' }) =>
+    request<ConfirmUpload>('/uploads/confirm', { method: 'POST', body }),
+};
+
 export const usersApi = {
+  me: () => request<UserProfile>('/users/me'),
+
+  updateMe: (body: {
+    name?: string;
+    ward?: string | null;
+    sectorNo?: string | null;
+  }) => request<UserProfile>('/users/me', { method: 'PATCH', body }),
+
+  presignProfilePhoto: (body: {
+    contentType: 'image/jpeg' | 'image/png' | 'image/webp';
+    fileName?: string;
+  }) => request<PresignUpload>('/users/me/presign', { method: 'POST', body }),
+
   list: (params: Record<string, string | number | undefined>) => {
     const qs = new URLSearchParams();
     Object.entries(params).forEach(([k, v]) => {

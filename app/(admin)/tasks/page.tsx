@@ -29,8 +29,24 @@ export default function TasksListPage() {
   const [ward, setWard] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [status, setStatus] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [radius, setRadius] = useState('5000');
 
-  const filters = { page, limit: 20, ward, difficulty, status };
+  const filters = {
+    page,
+    limit: 20,
+    ward,
+    difficulty,
+    status,
+    ...(latitude.trim() && longitude.trim()
+      ? {
+          latitude: Number(latitude),
+          longitude: Number(longitude),
+          radius: Number(radius) || 5000,
+        }
+      : {}),
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['tasks', filters],
@@ -89,6 +105,34 @@ export default function TasksListPage() {
           }}
           className="min-w-[7rem] max-w-[8rem]"
         />
+        <FilterInput
+          placeholder="Lat"
+          value={latitude}
+          onChange={(e) => {
+            setLatitude(e.target.value);
+            setPage(1);
+          }}
+          className="min-w-[6rem] max-w-[7rem]"
+        />
+        <FilterInput
+          placeholder="Lng"
+          value={longitude}
+          onChange={(e) => {
+            setLongitude(e.target.value);
+            setPage(1);
+          }}
+          className="min-w-[6rem] max-w-[7rem]"
+        />
+        <FilterInput
+          placeholder="Radius (m)"
+          value={radius}
+          onChange={(e) => {
+            setRadius(e.target.value);
+            setPage(1);
+          }}
+          className="min-w-[6rem] max-w-[8rem]"
+          title="Meters — used with lat/lng"
+        />
       </PageToolbar>
 
       {isLoading ? (
@@ -102,6 +146,7 @@ export default function TasksListPage() {
               <Th>Title</Th>
               <Th>Status</Th>
               <Th>Ward</Th>
+              <Th>Location</Th>
               <Th>Period</Th>
               <Th>Volunteers</Th>
               <Th>Created</Th>
@@ -121,6 +166,11 @@ export default function TasksListPage() {
                     <StatusBadge label={t.status} variant="taskStatus" value={t.status} />
                   </Td>
                   <Td>{t.ward}</Td>
+                  <Td className="whitespace-nowrap text-[11px] text-[var(--text-secondary)]">
+                    {t.latitude != null && t.longitude != null
+                      ? `${t.latitude}, ${t.longitude}`
+                      : '—'}
+                  </Td>
                   <Td className="whitespace-nowrap text-[var(--text-secondary)]">
                     {formatDate(t.startDate)} – {formatDate(t.endDate)}
                   </Td>

@@ -4,10 +4,23 @@ export interface AuthUser {
   id: string;
   name: string;
   phone?: string;
-  ward?: string;
+  ward?: string | null;
+  sectorNo?: string | null;
   role: UserRole;
   profilePhoto?: string | null;
   profilePhotoUrl?: string | null;
+  profileComplete?: boolean;
+}
+
+/** Current user profile from GET /users/me */
+export interface UserProfile extends AuthUser {
+  role: UserRole;
+  totalPoints?: number;
+  streakCount?: number;
+  badgeIds?: string[];
+  lastActiveAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PaginatedMeta {
@@ -73,6 +86,8 @@ export interface Task {
   title: string;
   description?: string | null;
   ward: string;
+  latitude?: number | null;
+  longitude?: number | null;
   startDate: string;
   endDate: string;
   maxVolunteers: number;

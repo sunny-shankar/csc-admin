@@ -15,7 +15,7 @@ import {
 } from '@/lib/firebase/phoneAuth';
 import { normalizeIndianPhone, phoneDigitsForInput } from '@/lib/phone';
 import { Button } from '@/components/ui/Button';
-import { Field, Input } from '@/components/ui/Input';
+import { Field, Input, InputGroup } from '@/components/ui/Input';
 
 const DEV_BYPASS = process.env.NEXT_PUBLIC_AUTH_DEV_BYPASS === 'true';
 const RECAPTCHA_ID = 'firebase-recaptcha';
@@ -130,21 +130,19 @@ export default function LoginPage() {
         {isFirebaseConfigured ? (
           step === 'phone' ? (
             <form onSubmit={handleSendOtp} className="space-y-4">
-              <Field label="Mobile number">
-                <div className="flex overflow-hidden rounded-[6px] border border-[var(--border)] bg-[var(--control-bg)] focus-within:border-[var(--gray-400)] focus-within:bg-white">
-                  <span className="flex items-center border-r border-[var(--border)] px-2.5 text-[13px] text-[var(--gray-600)]">
-                    +91
-                  </span>
+              <Field label="Mobile number" required>
+                <InputGroup prefix="+91">
                   <input
                     type="tel"
                     inputMode="numeric"
+                    autoComplete="tel-national"
                     value={phoneDigits}
                     onChange={(e) => setPhoneDigits(phoneDigitsForInput(e.target.value))}
                     maxLength={10}
-                    className="h-7 w-full bg-transparent px-2 text-[13px] outline-none"
+                    placeholder="9876543210"
                     required
                   />
-                </div>
+                </InputGroup>
               </Field>
               <Button type="submit" className="w-full" disabled={loading || phoneDigits.length !== 10}>
                 {loading ? 'Sending…' : 'Send OTP'}
@@ -155,12 +153,14 @@ export default function LoginPage() {
               <p className="text-[12px] text-[var(--text-secondary)]">
                 OTP sent to {normalizedPhoneRef.current}
               </p>
-              <Field label="One-time password">
+              <Field label="One-time password" required>
                 <Input
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   maxLength={6}
-                  className="tracking-widest"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  className="text-center text-lg tracking-[0.35em]"
                   required
                 />
               </Field>

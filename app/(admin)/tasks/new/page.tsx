@@ -17,6 +17,8 @@ export default function CreateTaskPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [ward, setWard] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [maxVolunteers, setMaxVolunteers] = useState(20);
@@ -29,6 +31,8 @@ export default function CreateTaskPage() {
         title,
         description: description || null,
         ward,
+        latitude: latitude.trim() ? Number(latitude) : null,
+        longitude: longitude.trim() ? Number(longitude) : null,
         startDate,
         endDate,
         maxVolunteers,
@@ -83,6 +87,30 @@ export default function CreateTaskPage() {
                   </option>
                 ))}
               </Select>
+            </Field>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Latitude (optional)" hint="Set with longitude for map location">
+              <Input
+                type="number"
+                step="any"
+                min={-90}
+                max={90}
+                value={latitude}
+                onChange={(e) => setLatitude(e.target.value)}
+                placeholder="30.7333"
+              />
+            </Field>
+            <Field label="Longitude (optional)">
+              <Input
+                type="number"
+                step="any"
+                min={-180}
+                max={180}
+                value={longitude}
+                onChange={(e) => setLongitude(e.target.value)}
+                placeholder="76.7794"
+              />
             </Field>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">

@@ -16,6 +16,7 @@ interface AuthState {
   login: (phone: string, idToken: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
   hydrate: () => void;
+  setUser: (user: AuthUser) => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -50,6 +51,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     sessionStorage.setItem(REFRESH_KEY, data.refreshToken);
     sessionStorage.setItem(USER_KEY, JSON.stringify(data.user));
     set({ user: data.user, refreshToken: data.refreshToken });
+  },
+
+  setUser: (user) => {
+    sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+    set({ user });
   },
 
   logout: async () => {

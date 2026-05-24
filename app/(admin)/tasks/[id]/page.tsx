@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type { TaskVolunteer } from '@/lib/types';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { Archive } from 'lucide-react';
+import { Archive, ExternalLink } from 'lucide-react';
 import { tasksApi } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { DetailGrid } from '@/components/ui/DetailGrid';
@@ -221,10 +221,28 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
                   value: `${task.volunteerCount}/${task.maxVolunteers}`,
                 },
                 { label: 'Reward', value: `${task.rewardPoints} pts` },
+                {
+                  label: 'Location',
+                  value:
+                    task.latitude != null && task.longitude != null
+                      ? `${task.latitude}, ${task.longitude}`
+                      : null,
+                },
                 { label: 'Created', value: formatDateTime(task.createdAt) },
                 { label: 'Updated', value: formatDateTime(task.updatedAt) },
               ]}
             />
+            {task.latitude != null && task.longitude != null && (
+              <a
+                href={`https://www.google.com/maps?q=${task.latitude},${task.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center gap-1.5 text-[13px] text-[var(--text-secondary)] hover:text-[var(--gray-900)]"
+              >
+                <ExternalLink size={14} />
+                View on map
+              </a>
+            )}
           </div>
         </Card>
 

@@ -9,9 +9,11 @@ import {
   Users,
   Trophy,
   LogOut,
+  UserCircle,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/cn';
+import { userInitials } from '@/lib/userDisplay';
 
 const nav = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -20,16 +22,6 @@ const nav = [
   { href: '/users', label: 'Users', icon: Users },
   { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
 ];
-
-function initials(name?: string) {
-  if (!name) return 'A';
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-}
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -68,15 +60,33 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-[var(--sidebar-border)] p-2">
-        <div className="flex items-center gap-2 rounded-[8px] px-2 py-2">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--gray-200)] text-[11px] font-semibold text-[var(--gray-700)]">
-            {initials(user?.name)}
-          </div>
+        <Link
+          href="/account"
+          className={cn(
+            'flex items-center gap-2 rounded-[8px] px-2 py-2 transition-colors',
+            pathname === '/account'
+              ? 'bg-[var(--sidebar-active)]'
+              : 'hover:bg-[var(--sidebar-hover)]',
+          )}
+        >
+          {user?.profilePhotoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.profilePhotoUrl}
+              alt=""
+              className="h-8 w-8 shrink-0 rounded-full border border-[var(--border)] object-cover"
+            />
+          ) : (
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--gray-200)] text-[11px] font-semibold text-[var(--gray-700)]">
+              {userInitials(user?.name)}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <p className="truncate text-[13px] font-medium text-[var(--gray-900)]">{user?.name}</p>
-            <p className="truncate text-[11px] text-[var(--text-muted)]">{user?.phone ?? 'Admin'}</p>
+            <p className="truncate text-[11px] text-[var(--text-muted)]">My account</p>
           </div>
-        </div>
+          <UserCircle size={16} className="shrink-0 text-[var(--gray-500)]" />
+        </Link>
         <button
           type="button"
           onClick={() => logout()}
