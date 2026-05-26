@@ -32,13 +32,13 @@ export default function ReportsListPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('');
   const [category, setCategory] = useState('');
-  const [ward, setWard] = useState('');
+  const [code, setCode] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [batchOpen, setBatchOpen] = useState(false);
   const [batchStatus, setBatchStatus] = useState<ReportStatus>('IN_REVIEW');
   const [batchNote, setBatchNote] = useState('');
 
-  const filters = { page, limit: 20, status, category, ward };
+  const filters = { page, limit: 20, status, category, code };
 
   const { data, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['reports', filters],
@@ -81,7 +81,7 @@ export default function ReportsListPage() {
       const csv = await reportsApi.exportCsv({
         status: status || undefined,
         category: category || undefined,
-        ward: ward || undefined,
+        code: code || undefined,
       });
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
@@ -141,13 +141,13 @@ export default function ReportsListPage() {
           ))}
         </FilterSelect>
         <FilterInput
-          placeholder="Ward"
-          value={ward}
+          placeholder="Code"
+          value={code}
           onChange={(e) => {
-            setWard(e.target.value);
+            setCode(e.target.value);
             setPage(1);
           }}
-          className="min-w-[7rem] max-w-[8rem]"
+          className="min-w-[7rem] max-w-[10rem]"
         />
       </PageToolbar>
 

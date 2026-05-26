@@ -27,26 +27,16 @@ import {
 
 export default function TasksListPage() {
   const [page, setPage] = useState(1);
-  const [ward, setWard] = useState('');
+  const [title, setTitle] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [status, setStatus] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
-  const [radius, setRadius] = useState('5000');
 
   const filters = {
     page,
     limit: 20,
-    ward,
+    title,
     difficulty,
     status,
-    ...(latitude.trim() && longitude.trim()
-      ? {
-          latitude: Number(latitude),
-          longitude: Number(longitude),
-          radius: Number(radius) || 5000,
-        }
-      : {}),
   };
 
   const { data, isLoading } = useQuery({
@@ -98,41 +88,13 @@ export default function TasksListPage() {
           ))}
         </FilterSelect>
         <FilterInput
-          placeholder="Ward"
-          value={ward}
+          placeholder="Title"
+          value={title}
           onChange={(e) => {
-            setWard(e.target.value);
+            setTitle(e.target.value);
             setPage(1);
           }}
-          className="min-w-[7rem] max-w-[8rem]"
-        />
-        <FilterInput
-          placeholder="Lat"
-          value={latitude}
-          onChange={(e) => {
-            setLatitude(e.target.value);
-            setPage(1);
-          }}
-          className="min-w-[6rem] max-w-[7rem]"
-        />
-        <FilterInput
-          placeholder="Lng"
-          value={longitude}
-          onChange={(e) => {
-            setLongitude(e.target.value);
-            setPage(1);
-          }}
-          className="min-w-[6rem] max-w-[7rem]"
-        />
-        <FilterInput
-          placeholder="Radius (m)"
-          value={radius}
-          onChange={(e) => {
-            setRadius(e.target.value);
-            setPage(1);
-          }}
-          className="min-w-[6rem] max-w-[8rem]"
-          title="Meters — used with lat/lng"
+          className="min-w-[9rem] max-w-[14rem]"
         />
       </PageToolbar>
 
