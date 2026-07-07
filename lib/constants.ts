@@ -1,4 +1,4 @@
-import type { ReportStatus, TaskDifficulty, ProofStatus } from './types';
+import type { ReportStatus, TaskDifficulty, ProofStatus, EventStatus } from './types';
 
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
@@ -55,3 +55,5 @@ export const TASK_STATUS_COLORS: Record<(typeof TASK_STATUSES)[number], string> 
   CLOSED: 'bg-[#f3f3f3] text-[#525252]',
   ARCHIVED: 'bg-[#f3f3f3] text-[#7c7c7c]',
 };
+
+export const EVENT_STATUSES: EventStatus[] = ['ACTIVE', 'ARCHIVED'];

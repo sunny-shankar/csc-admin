@@ -168,3 +168,40 @@ export interface DashboardStats {
   users: { total: number };
   tasks: { active: number };
 }
+
+export type EventStatus = 'ACTIVE' | 'ARCHIVED';
+
+export interface EventImage {
+  id: string;
+  imageKey: string;
+  imageUrl?: string | null;
+  sortOrder: number;
+}
+
+export interface Event {
+  id: string;
+  title: string;
+  description?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  status: EventStatus;
+  images: EventImage[];
+  interestCount: number;
+  interested?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface EventInterest {
+  id: string;
+  eventId?: string;
+  userId?: string;
+  expressedAt: string;
+  user?: {
+    id: string;
+    name: string;
+    ward?: string;
+    phone?: string;
+    sectorNo?: string;
+  };
+}

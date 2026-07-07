@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   FileText,
   ClipboardList,
+  CalendarDays,
   Users,
   Trophy,
   LogOut,
@@ -19,6 +20,7 @@ const nav = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/tasks', label: 'Tasks', icon: ClipboardList },
+  { href: '/events', label: 'Events', icon: CalendarDays },
   { href: '/users', label: 'Users', icon: Users },
   { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
 ];

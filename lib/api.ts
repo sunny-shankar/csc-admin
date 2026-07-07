@@ -16,6 +16,8 @@ import type {
   Report,
   Task,
   TaskVolunteer,
+  Event,
+  EventInterest,
 } from './types';
 
 export class ApiError extends Error {
@@ -222,8 +224,11 @@ export interface ConfirmUpload {
 }
 
 export const uploadsApi = {
-  confirm: (body: { key: string; purpose: 'avatar' | 'report' | 'task' }) =>
-    request<ConfirmUpload>('/uploads/confirm', { method: 'POST', body }),
+  confirm: (body: {
+    key: string;
+    purpose: 'avatar' | 'report' | 'task' | 'event';
+    eventId?: string;
+  }) => request<ConfirmUpload>('/uploads/confirm', { method: 'POST', body }),
 };
 
 export const usersApi = {
@@ -269,4 +274,32 @@ export const leaderboardApi = {
 
 export const analyticsApi = {
   dashboard: () => request<DashboardStats>('/analytics/dashboard'),
+};
+
+export const eventsApi = {
+  list: (params: Record<string, string | number | undefined>) => {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== '') qs.set(k, String(v));
+    });
+    return request<Event[]>(`/events?${qs}`);
+  },
+
+  get: (id: string) => request<Event>(`/events/${id}`),
+
+  create: (body: Record<string, unknown>) =>
+    request<Event>('/events', { method: 'POST', body }),
+
+  update: (id: string, body: Record<string, unknown>) =>
+    request<Event>(`/events/${id}`, { method: 'PATCH', body }),
+
+  archive: (id: string) => request<Event>(`/events/${id}/archive`, { method: 'PATCH' }),
+
+  interests: (id: string) => request<EventInterest[]>(`/events/${id}/interests`),
+
+  presignImage: (body: {
+    contentType: 'image/jpeg' | 'image/png' | 'image/webp';
+    fileName?: string;
+    eventId?: string;
+  }) => request<PresignUpload>('/events/presign-image', { method: 'POST', body }),
 };
