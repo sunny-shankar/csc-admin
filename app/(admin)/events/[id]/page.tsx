@@ -142,35 +142,37 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
               <EmptyState message="No users have expressed interest yet." />
             ) : (
               <DataTable className="mt-4">
-                <DataTableHead>
-                  <Th>Name</Th>
-                  <Th>Phone</Th>
-                  <Th>Ward</Th>
-                  <Th>Sector</Th>
-                  <Th>Expressed at</Th>
-                </DataTableHead>
-                <DataTableBody>
-                  {interests.map((interest) => (
-                    <Tr key={interest.id}>
-                      <Td>
-                        {interest.user?.id ? (
-                          <Link
-                            href={`/users/${interest.user.id}`}
-                            className="font-medium text-[var(--gray-900)] hover:underline"
-                          >
-                            {interest.user.name}
-                          </Link>
-                        ) : (
-                          (interest.user?.name ?? '—')
-                        )}
-                      </Td>
-                      <Td>{interest.user?.phone ?? '—'}</Td>
-                      <Td>{interest.user?.ward ?? '—'}</Td>
-                      <Td>{interest.user?.sectorNo ?? '—'}</Td>
-                      <Td>{formatDateTime(interest.expressedAt)}</Td>
-                    </Tr>
-                  ))}
-                </DataTableBody>
+                <table className="w-full min-w-[640px]">
+                  <DataTableHead>
+                    <Th>Name</Th>
+                    <Th>Phone</Th>
+                    <Th>Ward</Th>
+                    <Th>Sector</Th>
+                    <Th>Expressed at</Th>
+                  </DataTableHead>
+                  <DataTableBody>
+                    {interests.map((interest) => (
+                      <Tr key={interest.id}>
+                        <Td>
+                          {interest.user?.id ? (
+                            <Link
+                              href={`/users/${interest.user.id}`}
+                              className="font-medium text-[var(--gray-900)] hover:underline"
+                            >
+                              {interest.user.name}
+                            </Link>
+                          ) : (
+                            (interest.user?.name ?? '—')
+                          )}
+                        </Td>
+                        <Td>{interest.user?.phone ?? '—'}</Td>
+                        <Td>{interest.user?.ward ?? '—'}</Td>
+                        <Td>{interest.user?.sectorNo ?? '—'}</Td>
+                        <Td>{formatDateTime(interest.expressedAt)}</Td>
+                      </Tr>
+                    ))}
+                  </DataTableBody>
+                </table>
               </DataTable>
             )}
           </Card>

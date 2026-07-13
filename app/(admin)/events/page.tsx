@@ -87,42 +87,44 @@ export default function EventsListPage() {
         <EmptyState message="No events yet. Create one to get started." />
       ) : (
         <DataTable>
-          <DataTableHead>
-            <Th>Title</Th>
-            <Th>Status</Th>
-            <Th>Interested</Th>
-            <Th>Created</Th>
-            <Th />
-          </DataTableHead>
-          <DataTableBody>
-            {events.map((event) => (
-              <Tr key={event.id}>
-                <Td>
-                  <p className="font-medium text-[var(--gray-900)]">{event.title}</p>
-                  {event.description && (
-                    <p className="mt-0.5 line-clamp-1 text-xs text-[var(--text-muted)]">
-                      {event.description}
-                    </p>
-                  )}
-                </Td>
-                <Td>
-                  <StatusBadge variant="taskStatus" value={event.status} />
-                </Td>
-                <Td>{event.interestCount}</Td>
-                <Td>
-                  <DateCell value={event.createdAt} />
-                </Td>
-                <Td className="text-right">
-                  <Link
-                    href={`/events/${event.id}`}
-                    className="text-[12px] font-medium text-[var(--gray-700)] hover:text-[var(--gray-900)]"
-                  >
-                    View
-                  </Link>
-                </Td>
-              </Tr>
-            ))}
-          </DataTableBody>
+          <table className="w-full min-w-[640px]">
+            <DataTableHead>
+              <Th>Title</Th>
+              <Th>Status</Th>
+              <Th>Interested</Th>
+              <Th>Created</Th>
+              <Th />
+            </DataTableHead>
+            <DataTableBody>
+              {events.map((event) => (
+                <Tr key={event.id}>
+                  <Td>
+                    <p className="font-medium text-[var(--gray-900)]">{event.title}</p>
+                    {event.description && (
+                      <p className="mt-0.5 line-clamp-1 text-xs text-[var(--text-muted)]">
+                        {event.description}
+                      </p>
+                    )}
+                  </Td>
+                  <Td>
+                    <StatusBadge variant="taskStatus" value={event.status} />
+                  </Td>
+                  <Td>{event.interestCount}</Td>
+                  <Td>
+                    <DateCell value={event.createdAt} />
+                  </Td>
+                  <Td className="text-right">
+                    <Link
+                      href={`/events/${event.id}`}
+                      className="text-[12px] font-medium text-[var(--gray-700)] hover:text-[var(--gray-900)]"
+                    >
+                      View
+                    </Link>
+                  </Td>
+                </Tr>
+              ))}
+            </DataTableBody>
+          </table>
         </DataTable>
       )}
 
