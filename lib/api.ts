@@ -18,6 +18,7 @@ import type {
   TaskVolunteer,
   Event,
   EventInterest,
+  Banner,
 } from './types';
 
 export class ApiError extends Error {
@@ -226,8 +227,9 @@ export interface ConfirmUpload {
 export const uploadsApi = {
   confirm: (body: {
     key: string;
-    purpose: 'avatar' | 'report' | 'task' | 'event';
+    purpose: 'avatar' | 'report' | 'task' | 'event' | 'banner';
     eventId?: string;
+    bannerId?: string;
   }) => request<ConfirmUpload>('/uploads/confirm', { method: 'POST', body }),
 };
 
@@ -302,4 +304,32 @@ export const eventsApi = {
     fileName?: string;
     eventId?: string;
   }) => request<PresignUpload>('/events/presign-image', { method: 'POST', body }),
+};
+
+export const bannersApi = {
+  list: (params: Record<string, string | number | undefined>) => {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== '') qs.set(k, String(v));
+    });
+    return request<Banner[]>(`/banners?${qs}`);
+  },
+
+  get: (id: string) => request<Banner>(`/banners/${id}`),
+
+  create: (body: Record<string, unknown>) =>
+    request<Banner>('/banners', { method: 'POST', body }),
+
+  update: (id: string, body: Record<string, unknown>) =>
+    request<Banner>(`/banners/${id}`, { method: 'PATCH', body }),
+
+  archive: (id: string) => request<Banner>(`/banners/${id}/archive`, { method: 'PATCH' }),
+
+  activate: (id: string) => request<Banner>(`/banners/${id}/activate`, { method: 'PATCH' }),
+
+  presignImage: (body: {
+    contentType: 'image/jpeg' | 'image/png' | 'image/webp';
+    fileName?: string;
+    bannerId?: string;
+  }) => request<PresignUpload>('/banners/presign-image', { method: 'POST', body }),
 };

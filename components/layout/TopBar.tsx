@@ -9,6 +9,7 @@ const titles: Record<string, string> = {
   '/reports': 'Reports',
   '/tasks': 'Tasks',
   '/events': 'Events',
+  '/banners': 'Banners',
   '/users': 'Users',
   '/leaderboard': 'Leaderboard',
   '/account': 'My account',
@@ -20,6 +21,8 @@ function resolveTitle(pathname: string): string {
   if (pathname.startsWith('/tasks/')) return 'Task';
   if (pathname.startsWith('/events/new')) return 'New event';
   if (pathname.startsWith('/events/')) return 'Event';
+  if (pathname.startsWith('/banners/new')) return 'New banner';
+  if (pathname.startsWith('/banners/')) return 'Banner';
   if (pathname.startsWith('/users/')) return 'User';
   return titles[pathname] ?? 'Admin';
 }

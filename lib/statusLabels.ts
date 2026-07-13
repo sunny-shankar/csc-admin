@@ -1,4 +1,11 @@
-import type { ProofStatus, ReportStatus, TaskDifficulty, TaskStatus, EventStatus } from './types';
+import type {
+  ProofStatus,
+  ReportStatus,
+  TaskDifficulty,
+  TaskStatus,
+  EventStatus,
+  BannerStatus,
+} from './types';
 
 export const REPORT_STATUS_LABELS: Record<ReportStatus, string> = {
   PENDING: 'Pending',
@@ -31,6 +38,11 @@ export const EVENT_STATUS_LABELS: Record<EventStatus, string> = {
   ARCHIVED: 'Archived',
 };
 
+export const BANNER_STATUS_LABELS: Record<BannerStatus, string> = {
+  ACTIVE: 'Active',
+  ARCHIVED: 'Archived',
+};
+
 export function reportStatusLabel(status: string | null | undefined): string {
   if (!status) return '—';
   return REPORT_STATUS_LABELS[status as ReportStatus] ?? humanizeEnum(status);
@@ -54,6 +66,11 @@ export function taskDifficultyLabel(value: string | null | undefined): string {
 export function eventStatusLabel(status: string | null | undefined): string {
   if (!status) return '—';
   return EVENT_STATUS_LABELS[status as EventStatus] ?? humanizeEnum(status);
+}
+
+export function bannerStatusLabel(status: string | null | undefined): string {
+  if (!status) return '—';
+  return BANNER_STATUS_LABELS[status as BannerStatus] ?? humanizeEnum(status);
 }
 
 function humanizeEnum(value: string): string {

@@ -205,3 +205,17 @@ export interface EventInterest {
     sectorNo?: string;
   };
 }
+
+export type BannerStatus = 'ACTIVE' | 'ARCHIVED';
+
+export interface Banner {
+  id: string;
+  title: string;
+  url: string;
+  imageKey: string;
+  imageUrl?: string | null;
+  sequence: number;
+  status: BannerStatus;
+  createdAt: string;
+  updatedAt?: string;
+}

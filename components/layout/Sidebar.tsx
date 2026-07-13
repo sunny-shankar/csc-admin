@@ -7,6 +7,7 @@ import {
   FileText,
   ClipboardList,
   CalendarDays,
+  ImageIcon,
   Users,
   Trophy,
   LogOut,
@@ -21,6 +22,7 @@ const nav = [
   { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/tasks', label: 'Tasks', icon: ClipboardList },
   { href: '/events', label: 'Events', icon: CalendarDays },
+  { href: '/banners', label: 'Banners', icon: ImageIcon },
   { href: '/users', label: 'Users', icon: Users },
   { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
 ];
