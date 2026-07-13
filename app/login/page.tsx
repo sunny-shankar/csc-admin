@@ -49,8 +49,13 @@ export default function LoginPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (hydrated && user) {
+      router.replace('/dashboard');
+    }
+  }, [hydrated, user, router]);
+
   if (hydrated && user) {
-    router.replace('/dashboard');
     return null;
   }
 
